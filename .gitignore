@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+docs
+inst/doc
+*/**/.DS_Store
+.DS_Store
+/doc/
+/Meta/
+scratch.R
