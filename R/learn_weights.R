@@ -16,7 +16,7 @@
 #'   `loss_function` by [learn_weights()]. For examples, see [loss_mae()] or
 #'   [loss_mae_with_observation_weight()].
 #'   The arguments `y_hat` and `y` passed by [learn_weights()] are numeric
-#'   vectors of the same length.
+#'   vectors of equal length.
 #'   The provided `loss_function` must return a numeric scalar value.
 #' 
 #' @return A fitted model object of class `threedx`

@@ -4,7 +4,7 @@
 \alias{predict_with_state}
 \title{Generate sample paths using latent state}
 \usage{
-predict_with_state(y_m, object, horizon, n_samples)
+predict_with_state(y_m, object, horizon, n_samples, innovation_function, ...)
 }
 \description{
 Generate sample paths using latent state

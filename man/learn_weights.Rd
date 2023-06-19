@@ -25,7 +25,7 @@ allow for potential future changes in the set of arguments passed to
 \code{loss_function} by \code{\link[=learn_weights]{learn_weights()}}. For examples, see \code{\link[=loss_mae]{loss_mae()}} or
 \code{\link[=loss_mae_with_observation_weight]{loss_mae_with_observation_weight()}}.
 The arguments \code{y_hat} and \code{y} passed by \code{\link[=learn_weights]{learn_weights()}} are numeric
-vectors of the same length.
+vectors of equal length.
 The provided \code{loss_function} must return a numeric scalar value.}
 }
 \value{
