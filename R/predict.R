@@ -134,6 +134,16 @@ predict_with_state <- function(y_m,
     ordered = TRUE
   )
   
+  if (all(is.na(object$residuals))) {
+    stop("All `residuals` available in `object` are missing, can't generate
+         innovation noise.")
+  }
+  
+  if (length(object$residuals) == 0L) {
+    stop("The `object$residuals` are of length zero, can't generate innovation
+         noise.")
+  }
+  
   y_hat_m <- matrix(
     data = innovation_function(
       n = horizon * n_samples,
