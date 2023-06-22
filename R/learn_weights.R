@@ -64,7 +64,7 @@ learn_weights <- function(y,
   }
   
   step_ahead_loss <- apply(
-    X = step_ahead_predictions[-seq_len(offset), ],
+    X = step_ahead_predictions[-seq_len(offset), , drop = FALSE],
     MARGIN = 2,
     FUN = loss_function,
     y = y[-seq_len(offset)]
