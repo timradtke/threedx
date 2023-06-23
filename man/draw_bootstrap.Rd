@@ -21,11 +21,19 @@ A vector of same type as \code{errors} and of length \code{n}
 Draw innovations by bootstrapping from unweighted residual errors
 }
 \examples{
-predict(
+model <- learn_weights(
+  y = rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6))),
+  season_length = 12L,
+  alphas_grid = list_sampled_alphas(n_target = 25),
+  loss_function = loss_mae
+)
+
+forecast <- predict(
   object = model,
   horizon = 12L,
   n_samples = 1000L,
   observation_driven = FALSE,
   innovation_function = draw_bootstrap
 )
+
 }
