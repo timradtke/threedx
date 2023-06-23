@@ -21,7 +21,14 @@ A vector of same type as \code{errors} and of length \code{n}
 Draw i.i.d. innovations from a Normal distribution with non-zero mean
 }
 \examples{
-predict(
+model <- learn_weights(
+  y = 1:50,
+  season_length = 12L,
+  alphas_grid = list_sampled_alphas(n_target = 25),
+  loss_function = loss_mae
+)
+
+forecast <- predict(
   object = model,
   horizon = 12L,
   n_samples = 1000L,

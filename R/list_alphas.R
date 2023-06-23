@@ -20,13 +20,13 @@ list_edge_alphas <- function() {
 #' @examples
 #' alphas_grid <- list_sampled_alphas(n_target = 250L)
 #' 
-#' ggplot2::ggplot(
-#'   alphas_list_to_data_frame(alphas_grid),
-#'   ggplot2::aes(x = alpha, y = alpha_seasonal, fill = alpha_seasonal_decay)
-#' ) +
-#' ggplot2::geom_point(pch = 21, color = "white") +
-#' ggplot2::scale_fill_gradient2(midpoint = 0.5) +
-#' ggplot2::labs(title = "Sampled Grid of Parameters to Evaluate")
+#' # ggplot2::ggplot(
+#' #   alphas_list_to_data_frame(alphas_grid),
+#' #   ggplot2::aes(x = alpha, y = alpha_seasonal, fill = alpha_seasonal_decay)
+#' # ) +
+#' #   ggplot2::geom_point(pch = 21, color = "white") +
+#' #   ggplot2::scale_fill_gradient2(midpoint = 0.5) +
+#' #   ggplot2::labs(title = "Sampled Grid of Parameters to Evaluate")
 #' 
 list_sampled_alphas <- function(n_target = 100,
                                 alpha_lower = 0,

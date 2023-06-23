@@ -147,7 +147,7 @@ predict_with_state <- function(y_m,
   y_hat_m <- matrix(
     data = innovation_function(
       n = horizon * n_samples,
-      errors = na.omit(object$residuals),
+      errors = stats::na.omit(object$residuals),
       ...
     ),
     nrow = n_samples,
@@ -183,7 +183,14 @@ predict_with_state <- function(y_m,
 #' @export
 #' 
 #' @examples
-#' predict(
+#' model <- learn_weights(
+#'   y = 1:50,
+#'   season_length = 12L,
+#'   alphas_grid = list_sampled_alphas(n_target = 25),
+#'   loss_function = loss_mae
+#' )
+#' 
+#' forecast <- predict(
 #'   object = model,
 #'   horizon = 12L,
 #'   n_samples = 1000L,
@@ -214,7 +221,14 @@ draw_normal_with_drift <- function(n, errors, ...) {
 #' @export
 #' 
 #' @examples
-#' predict(
+#' model <- learn_weights(
+#'   y = 1:50,
+#'   season_length = 12L,
+#'   alphas_grid = list_sampled_alphas(n_target = 25),
+#'   loss_function = loss_mae
+#' )
+#' 
+#' forecast <- predict(
 #'   object = model,
 #'   horizon = 12L,
 #'   n_samples = 1000L,
@@ -248,7 +262,14 @@ draw_normal_with_zero_mean <- function(n, errors, ...) {
 #' @export
 #' 
 #' @examples
-#' predict(
+#' model <- learn_weights(
+#'   y = rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6))),
+#'   season_length = 12L,
+#'   alphas_grid = list_sampled_alphas(n_target = 25),
+#'   loss_function = loss_mae
+#' )
+#' 
+#' forecast <- predict(
 #'   object = model,
 #'   horizon = 12L,
 #'   n_samples = 1000L,
@@ -280,13 +301,21 @@ draw_bootstrap_weighted <- function(n, errors, weight_function, ...) {
 #' @export
 #' 
 #' @examples
-#' predict(
+#' model <- learn_weights(
+#'   y = rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6))),
+#'   season_length = 12L,
+#'   alphas_grid = list_sampled_alphas(n_target = 25),
+#'   loss_function = loss_mae
+#' )
+#' 
+#' forecast <- predict(
 #'   object = model,
 #'   horizon = 12L,
 #'   n_samples = 1000L,
 #'   observation_driven = FALSE,
 #'   innovation_function = draw_bootstrap
 #' )
+#' 
 draw_bootstrap <- function(n, errors, ...) {
   checkmate::assert_integerish(x = n, lower = 1, any.missing = FALSE, len = 1)
   checkmate::assert_numeric(x = errors, finite = TRUE, any.missing = FALSE)
