@@ -41,27 +41,29 @@ list_sampled_alphas <- function(n_target = 100,
                                 seed = NULL) {
   
   checkmate::assert_integerish(
-    x = n_target, lower = 0, len = 1, any.missing = FALSE
+    x = n_target, lower = 1, len = 1, any.missing = FALSE
   )
   checkmate::assert_numeric(
-    x = alpha_lower, lower = 0, len = 1, any.missing = FALSE
+    x = alpha_lower, lower = 0, upper = 1, len = 1, any.missing = FALSE
   )
   checkmate::assert_numeric(
-    x = alpha_upper, lower = alpha_lower, len = 1, any.missing = FALSE
+    x = alpha_upper, len = 1, any.missing = FALSE,
+    lower = alpha_lower, upper = 1
   )
   checkmate::assert_numeric(
-    x = alpha_seasonal_lower, lower = 0, len = 1, any.missing = FALSE
+    x = alpha_seasonal_lower, lower = 0, upper = 1, len = 1, any.missing = FALSE
   )
   checkmate::assert_numeric(
-    x = alpha_seasonal_upper, lower = alpha_seasonal_lower,
+    x = alpha_seasonal_upper, lower = alpha_seasonal_lower, upper = 1,
     len = 1, any.missing = FALSE
   )
   checkmate::assert_numeric(
-    x = alpha_seasonal_decay_lower, lower = 0, len = 1, any.missing = FALSE
+    x = alpha_seasonal_decay_lower, lower = 0, upper = 1, len = 1,
+    any.missing = FALSE
   )
   checkmate::assert_numeric(
     x = alpha_seasonal_decay_upper, lower = alpha_seasonal_decay_lower,
-    len = 1, any.missing = FALSE
+    upper = 1, len = 1, any.missing = FALSE
   )
   checkmate::assert_numeric(
     x = oversample_lower, lower = 0, len = 1, any.missing = FALSE
@@ -117,7 +119,8 @@ list_sampled_alphas <- function(n_target = 100,
     ncol = 3
   )
   
-  grid <- grid[grid[,1] != 1 & grid[,2] != 1, ]
+  # TODO Remove this line
+  # grid <- grid[grid[,1] != 1 & grid[,2] != 1, , drop = FALSE]
   
   if (include_edge_cases) {
     grid <- rbind(
@@ -140,7 +143,7 @@ list_sampled_alphas <- function(n_target = 100,
   grid <- unique(x = grid, MARGIN = 1)
   
   # trim grid down to `n_target` rows in case it has extended due to edge cases
-  grid <- grid[seq_len(pmin(n_target, nrow(grid))), ]
+  grid <- grid[seq_len(pmin(n_target, nrow(grid))), , drop = FALSE]
   
   lapply(
     X = seq_len(nrow(grid)),
@@ -155,6 +158,8 @@ list_sampled_alphas <- function(n_target = 100,
 #' alphas_list_to_data_frame(list_sampled_alphas(n_target = 10L))
 #' 
 alphas_list_to_data_frame <- function(alphas_grid) {
+  checkmate::assert_list(x = alphas_grid, types = "numeric", null.ok = FALSE, min.len = 1)
+  
   alphas_df <- as.data.frame(
     t(
       vapply(
