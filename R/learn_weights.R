@@ -37,7 +37,7 @@ learn_weights <- function(y,
     x = alphas_grid, min.len = 1, any.missing = FALSE, types = "numeric"
   )
   checkmate::assert_function(
-    x = loss_function, args = "y_hat", ordered = TRUE
+    x = loss_function, args = c("y_hat", "..."), ordered = FALSE
   )
   
   n <- length(y)
