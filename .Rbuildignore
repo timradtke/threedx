@@ -13,3 +13,4 @@
 ^scratch\.R$
 ^TODO\.md$
 ^\.covrignore$
+^\.github$

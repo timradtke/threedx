@@ -4,6 +4,8 @@
 # threedx (3DX)
 
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/timradtke/threedx/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/timradtke/threedx/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 Use 3DX to generate interpretable probabilistic forecasts purely by
