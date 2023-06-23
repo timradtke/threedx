@@ -2,7 +2,11 @@
 #' 
 #' @export
 loss_mae_with_observation_weight <- function(y_hat, y, ...) {
-  mean(abs(y - y_hat) * pmax(y, abs(y - y_hat)), na.rm = TRUE)
+  # wrapping in `sqrt()` to keep values from exploding
+  sqrt(mean(
+    abs(y - y_hat) * 
+      pmax(y, abs(y - y_hat)) # using `pmax()` to avoid non-positive weights
+  ))
 }
 
 #' Mean-absolute error loss function
@@ -12,9 +16,9 @@ loss_mae <- function(y_hat, y, ...) {
   mean(abs(y - y_hat))
 }
 
-#' Mean-squared error loss function
+#' Root mean-squared error loss function
 #' 
 #' @export
-loss_mse <- function(y_hat, y, ...) {
-  mean((y - y_hat)^2)
+loss_rmse <- function(y_hat, y, ...) {
+  sqrt(mean((y - y_hat)^2))
 }
