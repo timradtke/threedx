@@ -12,3 +12,6 @@
 ^Meta$
 ^scratch\.R$
 ^TODO\.md$
+^\.covrignore$
+^\.github$
+^codecov\.yml$
