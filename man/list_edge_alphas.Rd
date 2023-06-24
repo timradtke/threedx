@@ -6,6 +6,16 @@
 \usage{
 list_edge_alphas()
 }
+\value{
+A list of length-three numeric vectors
+}
 \description{
 Generate a list of possible alpha values that are evaluated during training
+}
+\examples{
+list_edge_alphas()
+}
+\seealso{
+\code{\link[=list_sampled_alphas]{list_sampled_alphas()}}, \code{\link[=alphas_list_to_data_frame]{alphas_list_to_data_frame()}},
+\code{\link[=learn_weights]{learn_weights()}}
 }

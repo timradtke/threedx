@@ -6,6 +6,16 @@
 \usage{
 loss_rmse(y_hat, y, ...)
 }
+\arguments{
+\item{y_hat}{A numeric vector representing predictions}
+
+\item{y}{A numeric vector representing observations}
+
+\item{...}{Additional arguments passed from other functions; ignored}
+}
+\value{
+A scalar value
+}
 \description{
 Root mean-squared error loss function
 }

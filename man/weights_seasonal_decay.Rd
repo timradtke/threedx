@@ -6,6 +6,39 @@
 \usage{
 weights_seasonal_decay(alpha_seasonal_decay, n, season_length)
 }
+\arguments{
+\item{alpha_seasonal_decay}{A value between 0 and 1 that determines how quick
+the exponential decay in the weights is}
+
+\item{n}{The number of weights to create; this is usually equal to the
+number of observations in a time series}
+
+\item{season_length}{The length of the seasonal period to be modeled}
+}
+\value{
+A numeric vector of \code{n} values between 0 and 1 that sum up to 1
+}
 \description{
-Derive weights with seasonal exponential decay
+Assigns the same weight to each season within a period, but exponentially
+decays across periods. For example, for a period length of 12, the most
+recent 12 weights will be equal, and higher than the next 12 weights that
+follow. See examples for an illustration of this idea.
+}
+\examples{
+round(
+  weights_seasonal_decay(
+    alpha_seasonal_decay = 0.5, n = 19L, season_length = 7L
+  ),
+  2
+)
+
+weights_seasonal_decay(alpha_seasonal_decay = 1, n = 19L, season_length = 7L)
+weights_seasonal_decay(alpha_seasonal_decay = 0, n = 19L, season_length = 7L)
+
+# no full period
+weights_seasonal_decay(alpha_seasonal_decay = 1, n = 4L, season_length = 7L)
+
+}
+\seealso{
+\code{\link[=weights_seasonal]{weights_seasonal()}}, \code{\link[=weights_exponential]{weights_exponential()}}, \code{\link[=weights_threedx]{weights_threedx()}}
 }

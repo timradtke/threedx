@@ -6,6 +6,16 @@
 \usage{
 loss_mae(y_hat, y, ...)
 }
+\arguments{
+\item{y_hat}{A numeric vector representing predictions}
+
+\item{y}{A numeric vector representing observations}
+
+\item{...}{Additional arguments passed from other functions; ignored}
+}
+\value{
+A scalar value
+}
 \description{
 Mean-absolute error loss function
 }
