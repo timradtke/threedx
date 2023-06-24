@@ -6,19 +6,96 @@
 \usage{
 weights_threedx(alpha, alpha_seasonal, alpha_seasonal_decay, n, season_length)
 }
+\arguments{
+\item{alpha}{The smoothing factor passed to \code{\link[=weights_exponential]{weights_exponential()}} that
+determines the overall monotonic exponential weight component}
+
+\item{alpha_seasonal}{The smoothing factor passed to \code{\link[=weights_seasonal]{weights_seasonal()}}
+that determines the exponential weighting within a seasonal period}
+
+\item{alpha_seasonal_decay}{The smoothing factor passed to
+\code{\link[=weights_seasonal_decay]{weights_seasonal_decay()}} that determines the exponential weighting of
+the seasonal periods}
+
+\item{n}{The number of weights to create; this is usually equal to the
+number of observations in a time series}
+
+\item{season_length}{The length of the seasonal period to be modeled}
+}
+\value{
+A numeric vector of \code{n} values between 0 and 1 that sum up to 1
+}
 \description{
-Derive three-dimensional exponential (3DX) weights
+Assigns weights that decay in three different directions as determined by
+the combination of \code{\link[=weights_exponential]{weights_exponential()}}, \code{\link[=weights_seasonal]{weights_seasonal()}}, and
+\code{\link[=weights_seasonal_decay]{weights_seasonal_decay()}}.
 }
 \examples{
-# random walk forecast
-weights_threedx(alpha = 1, alpha_seasonal = 0, alpha_seasonal_decay = 1, n = 30, season_length = 12)
-# mean forecast
-weights_threedx(alpha = 0, alpha_seasonal = 0, alpha_seasonal_decay = 0, n = 30, season_length = 12)
-# seasonal mean forecast
-weights_threedx(alpha = 0, alpha_seasonal = 1, alpha_seasonal_decay = 0, n = 30, season_length = 12)
-# seasonal naive forecast
-weights_threedx(alpha = 0, alpha_seasonal = 1, alpha_seasonal_decay = 1, n = 30, season_length = 12)
-# last year's mean forecast
-weights_threedx(alpha = 0, alpha_seasonal = 0, alpha_seasonal_decay = 1, n = 30, season_length = 12)
+weights <- weights_threedx(
+  alpha = 0.01,
+  alpha_seasonal = 0.05,
+  alpha_seasonal_decay = 0.01,
+  n = 17,
+  season_length = 5
+)
 
+print(weights)
+
+if (require("ggplot2")) {
+  ggplot2::ggplot(
+    data.frame(index = seq_along(weights), weight = weights),
+    ggplot2::aes(x = index, y = weight)
+  ) +
+    ggplot2::geom_col()
+}
+
+# random walk forecast
+weights_threedx(
+  alpha = 1,
+  alpha_seasonal = 0,
+  alpha_seasonal_decay = 1,
+  n = 30,
+  season_length = 12
+)
+
+# mean forecast
+weights_threedx(
+  alpha = 0,
+  alpha_seasonal = 0,
+  alpha_seasonal_decay = 0,
+  n = 30,
+  season_length = 12
+)
+
+# seasonal mean forecast
+weights_threedx(
+  alpha = 0,
+  alpha_seasonal = 1,
+  alpha_seasonal_decay = 0,
+  n = 30,
+  season_length = 12
+)
+
+# seasonal naive forecast
+weights_threedx(
+  alpha = 0,
+  alpha_seasonal = 1,
+  alpha_seasonal_decay = 1,
+  n = 30,
+  season_length = 12
+)
+
+# last year's mean forecast
+weights_threedx(
+  alpha = 0,
+  alpha_seasonal = 0,
+  alpha_seasonal_decay = 1,
+  n = 30,
+  season_length = 12
+)
+
+}
+\seealso{
+\code{\link[=weights_seasonal_decay]{weights_seasonal_decay()}}, \code{\link[=weights_exponential]{weights_exponential()}},
+\code{\link[=weights_threedx]{weights_threedx()}}
 }

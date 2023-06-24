@@ -27,29 +27,29 @@ the list of tuples may be shorter than \code{n_target}. Especially when
 allowed parameter range, the realized length of the resulting list can
 be shorter than \code{n_target} as many tuples become \verb{\{0,1\}}-valued.}
 
-\item{alpha_lower}{A numeric scalar in \link{0,1} serving as lower bound applied
+\item{alpha_lower}{A numeric scalar in 0,1 serving as lower bound applied
 to the \code{alpha} parameter of the returned tuples}
 
-\item{alpha_upper}{A numeric scalar in \link{0,1} serving as upper bound applied
+\item{alpha_upper}{A numeric scalar in 0,1 serving as upper bound applied
 to the \code{alpha} parameter of the returned tuples; must be at least as large
 as \code{alpha_lower}. When equal to \code{alpha_lower}, samples for \code{alpha} will be
 equal to \code{alpha_lower} will be equal to \code{alpha_upper} (as that is the
 only allowed value).}
 
-\item{alpha_seasonal_lower}{A numeric scalar in \link{0,1} serving as lower bound
+\item{alpha_seasonal_lower}{A numeric scalar in 0,1 serving as lower bound
 applied to the \code{alpha_seasonal} parameter of the returned tuples}
 
-\item{alpha_seasonal_upper}{A numeric scalar in \link{0,1} serving as upper bound
+\item{alpha_seasonal_upper}{A numeric scalar in 0,1 serving as upper bound
 applied to the \code{alpha_seasonal} parameter of the returned tuples; must be
 at least as large as \code{alpha_seasonal_lower}. When equal to
 \code{alpha_seasonal_lower}, samples for \code{alpha_seasonal} will be equal to
 \code{alpha_seasonal_lower} will be equal to \code{alpha_seasonal_upper} (as that is
 the only allowed value).}
 
-\item{alpha_seasonal_decay_lower}{A numeric scalar in \link{0,1} serving as lower
+\item{alpha_seasonal_decay_lower}{A numeric scalar in 0,1 serving as lower
 bound applied to the \code{alpha_seasonal_decay} parameter of returned tuples}
 
-\item{alpha_seasonal_decay_upper}{A numeric scalar in \link{0,1} serving as upper
+\item{alpha_seasonal_decay_upper}{A numeric scalar in 0,1 serving as upper
 bound applied to the \code{alpha_seasonal_decay} parameter of the returned
 tuples; must be at least as large as \code{alpha_seasonal_decay_lower}. When
 equal to \code{alpha_seasonal_decay_lower}, samples for \code{alpha_seasonal_decay}

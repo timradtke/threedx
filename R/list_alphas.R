@@ -30,24 +30,24 @@ list_edge_alphas <- function() {
 #'   `oversample_lower` and/or `oversample_upper` are large compared to the
 #'   allowed parameter range, the realized length of the resulting list can
 #'   be shorter than `n_target` as many tuples become `{0,1}`-valued.
-#' @param alpha_lower A numeric scalar in [0,1] serving as lower bound applied
+#' @param alpha_lower A numeric scalar in 0,1 serving as lower bound applied
 #'   to the `alpha` parameter of the returned tuples
-#' @param alpha_upper A numeric scalar in [0,1] serving as upper bound applied
+#' @param alpha_upper A numeric scalar in 0,1 serving as upper bound applied
 #'   to the `alpha` parameter of the returned tuples; must be at least as large
 #'   as `alpha_lower`. When equal to `alpha_lower`, samples for `alpha` will be
 #'   equal to `alpha_lower` will be equal to `alpha_upper` (as that is the
 #'   only allowed value).
-#' @param alpha_seasonal_lower A numeric scalar in [0,1] serving as lower bound
+#' @param alpha_seasonal_lower A numeric scalar in 0,1 serving as lower bound
 #'   applied to the `alpha_seasonal` parameter of the returned tuples
-#' @param alpha_seasonal_upper A numeric scalar in [0,1] serving as upper bound
+#' @param alpha_seasonal_upper A numeric scalar in 0,1 serving as upper bound
 #'   applied to the `alpha_seasonal` parameter of the returned tuples; must be
 #'   at least as large as `alpha_seasonal_lower`. When equal to
 #'   `alpha_seasonal_lower`, samples for `alpha_seasonal` will be equal to
 #'   `alpha_seasonal_lower` will be equal to `alpha_seasonal_upper` (as that is
 #'   the only allowed value).
-#' @param alpha_seasonal_decay_lower A numeric scalar in [0,1] serving as lower
+#' @param alpha_seasonal_decay_lower A numeric scalar in 0,1 serving as lower
 #'   bound applied to the `alpha_seasonal_decay` parameter of returned tuples
-#' @param alpha_seasonal_decay_upper A numeric scalar in [0,1] serving as upper
+#' @param alpha_seasonal_decay_upper A numeric scalar in 0,1 serving as upper
 #'   bound applied to the `alpha_seasonal_decay` parameter of the returned
 #'   tuples; must be at least as large as `alpha_seasonal_decay_lower`. When
 #'   equal to `alpha_seasonal_decay_lower`, samples for `alpha_seasonal_decay`
@@ -203,8 +203,9 @@ list_sampled_alphas <- function(n_target = 100,
     ncol = 3
   )
   
-  # TODO Remove this line
-  # grid <- grid[grid[,1] != 1 & grid[,2] != 1, , drop = FALSE]
+  # Used to avoid special case that generates NaN weights, occuring when both
+  # `alpha` and `alpha_seasonal` would be equal to 1
+  grid <- grid[!(grid[,1] == 1 & grid[,2] == 1), , drop = FALSE]
   
   if (include_edge_cases) {
     grid <- rbind(
