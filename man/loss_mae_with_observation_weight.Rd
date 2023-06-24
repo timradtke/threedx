@@ -6,6 +6,16 @@
 \usage{
 loss_mae_with_observation_weight(y_hat, y, ...)
 }
+\arguments{
+\item{y_hat}{A numeric vector representing predictions}
+
+\item{y}{A numeric vector representing observations}
+
+\item{...}{Additional arguments passed from other functions; ignored}
+}
+\value{
+A scalar value
+}
 \description{
 Observation-weighted mean-absolute error loss function
 }
