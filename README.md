@@ -35,15 +35,15 @@ dependency, installing `threedx` is a breeze.
 
 ``` r
 y <- rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6)))
-plot(y)
 ```
-
-<img src="man/figures/README-example_series-1.svg" width="100%" />
 
 ``` r
 library(threedx)
 
-alphas_grid <- list_sampled_alphas(n_target = 1000L)
+alphas_grid <- list_sampled_alphas(
+  n_target = 1000L,
+  include_edge_cases = TRUE
+)
 
 model <- learn_weights(
   y = y,
@@ -58,6 +58,14 @@ forecast <- predict(
   n_samples = 2500L,
   observation_driven = TRUE
 )
+```
+
+When `ggplot2` is available, we can use `autoplot()` to visualize the
+forecast object:
+
+``` r
+library(ggplot2)
+autoplot(forecast)
 ```
 
 <img src="man/figures/README-plot_forecast-1.svg" width="100%" />
