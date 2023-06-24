@@ -13,7 +13,7 @@
 #'   the seasonal periods
 #' @param n The number of weights to create; this is usually equal to the
 #'   number of observations in a time series
-#' @param season_length The length of the seasonal period to be modeled
+#' @param period_length The length of the seasonal period to be modeled
 #' 
 #' @return A numeric vector of `n` values between 0 and 1 that sum up to 1
 #' 
@@ -27,7 +27,7 @@
 #'   alpha_seasonal = 0.05,
 #'   alpha_seasonal_decay = 0.01,
 #'   n = 17,
-#'   season_length = 5
+#'   period_length = 5
 #' )
 #' 
 #' print(weights)
@@ -46,7 +46,7 @@
 #'   alpha_seasonal = 0,
 #'   alpha_seasonal_decay = 1,
 #'   n = 30,
-#'   season_length = 12
+#'   period_length = 12
 #' )
 #' 
 #' # mean forecast
@@ -55,7 +55,7 @@
 #'   alpha_seasonal = 0,
 #'   alpha_seasonal_decay = 0,
 #'   n = 30,
-#'   season_length = 12
+#'   period_length = 12
 #' )
 #' 
 #' # seasonal mean forecast
@@ -64,7 +64,7 @@
 #'   alpha_seasonal = 1,
 #'   alpha_seasonal_decay = 0,
 #'   n = 30,
-#'   season_length = 12
+#'   period_length = 12
 #' )
 #' 
 #' # seasonal naive forecast
@@ -73,7 +73,7 @@
 #'   alpha_seasonal = 1,
 #'   alpha_seasonal_decay = 1,
 #'   n = 30,
-#'   season_length = 12
+#'   period_length = 12
 #' )
 #' 
 #' # last year's mean forecast
@@ -82,25 +82,25 @@
 #'   alpha_seasonal = 0,
 #'   alpha_seasonal_decay = 1,
 #'   n = 30,
-#'   season_length = 12
+#'   period_length = 12
 #' )
 #' 
 weights_threedx <- function(alpha,
                             alpha_seasonal,
                             alpha_seasonal_decay,
                             n,
-                            season_length) {
+                            period_length) {
   
   weights <- weights_exponential(alpha = alpha, n = n) *
     weights_seasonal(
       alpha_seasonal = alpha_seasonal,
       n = n,
-      season_length = season_length
+      period_length = period_length
     ) *
     weights_seasonal_decay(
       alpha_seasonal_decay = alpha_seasonal_decay,
       n = n,
-      season_length = season_length
+      period_length = period_length
     )
   
   weights <- weights / sum(weights)

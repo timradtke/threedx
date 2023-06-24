@@ -102,7 +102,7 @@ predict_with_observations <- function(y_m,
         alpha_seasonal = object$alpha_seasonal,
         alpha_seasonal_decay = object$alpha_seasonal_decay,
         n = object$n + idx - 1,
-        season_length = object$season_length
+        period_length = object$period_length
       )
     )
     
@@ -163,7 +163,7 @@ predict_with_state <- function(y_m,
           alpha_seasonal = object$alpha_seasonal,
           alpha_seasonal_decay = object$alpha_seasonal_decay,
           n = object$n + idx - 1,
-          season_length = object$season_length
+          period_length = object$period_length
         ),
         ncol = 1
       )
@@ -185,7 +185,7 @@ predict_with_state <- function(y_m,
 #' @examples
 #' model <- learn_weights(
 #'   y = 1:50,
-#'   season_length = 12L,
+#'   period_length = 12L,
 #'   alphas_grid = list_sampled_alphas(n_target = 25),
 #'   loss_function = loss_mae
 #' )
@@ -223,7 +223,7 @@ draw_normal_with_drift <- function(n, errors, ...) {
 #' @examples
 #' model <- learn_weights(
 #'   y = 1:50,
-#'   season_length = 12L,
+#'   period_length = 12L,
 #'   alphas_grid = list_sampled_alphas(n_target = 25),
 #'   loss_function = loss_mae
 #' )
@@ -264,7 +264,7 @@ draw_normal_with_zero_mean <- function(n, errors, ...) {
 #' @examples
 #' model <- learn_weights(
 #'   y = rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6))),
-#'   season_length = 12L,
+#'   period_length = 12L,
 #'   alphas_grid = list_sampled_alphas(n_target = 25),
 #'   loss_function = loss_mae
 #' )
@@ -303,7 +303,7 @@ draw_bootstrap_weighted <- function(n, errors, weight_function, ...) {
 #' @examples
 #' model <- learn_weights(
 #'   y = rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6))),
-#'   season_length = 12L,
+#'   period_length = 12L,
 #'   alphas_grid = list_sampled_alphas(n_target = 25),
 #'   loss_function = loss_mae
 #' )

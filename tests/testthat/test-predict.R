@@ -3,7 +3,7 @@ library(checkmate)
 
 model <- learn_weights(
   y = 1:50,
-  season_length = 12L,
+  period_length = 12L,
   alphas_grid = list_sampled_alphas(),
   loss_function = loss_mae
 )

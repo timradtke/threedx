@@ -4,7 +4,7 @@
 \alias{predict_one_step_ahead_with_grid}
 \title{Predict one-step ahead for each of the alpha specifications}
 \usage{
-predict_one_step_ahead_with_grid(y, alphas_grid, n, season_length)
+predict_one_step_ahead_with_grid(y, alphas_grid, n, period_length)
 }
 \arguments{
 \item{y}{The time series vector of length \code{n}}
@@ -13,7 +13,7 @@ predict_one_step_ahead_with_grid(y, alphas_grid, n, season_length)
 
 \item{n}{The number of observations in the time series}
 
-\item{season_length}{The length of the seasonal period}
+\item{period_length}{The length of the seasonal period}
 }
 \value{
 A numeric vector of length \code{length(alphas_grid)}

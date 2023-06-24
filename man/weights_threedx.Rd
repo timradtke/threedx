@@ -4,7 +4,7 @@
 \alias{weights_threedx}
 \title{Derive three-dimensional exponential (3DX) weights}
 \usage{
-weights_threedx(alpha, alpha_seasonal, alpha_seasonal_decay, n, season_length)
+weights_threedx(alpha, alpha_seasonal, alpha_seasonal_decay, n, period_length)
 }
 \arguments{
 \item{alpha}{The smoothing factor passed to \code{\link[=weights_exponential]{weights_exponential()}} that
@@ -20,7 +20,7 @@ the seasonal periods}
 \item{n}{The number of weights to create; this is usually equal to the
 number of observations in a time series}
 
-\item{season_length}{The length of the seasonal period to be modeled}
+\item{period_length}{The length of the seasonal period to be modeled}
 }
 \value{
 A numeric vector of \code{n} values between 0 and 1 that sum up to 1
@@ -36,7 +36,7 @@ weights <- weights_threedx(
   alpha_seasonal = 0.05,
   alpha_seasonal_decay = 0.01,
   n = 17,
-  season_length = 5
+  period_length = 5
 )
 
 print(weights)
@@ -55,7 +55,7 @@ weights_threedx(
   alpha_seasonal = 0,
   alpha_seasonal_decay = 1,
   n = 30,
-  season_length = 12
+  period_length = 12
 )
 
 # mean forecast
@@ -64,7 +64,7 @@ weights_threedx(
   alpha_seasonal = 0,
   alpha_seasonal_decay = 0,
   n = 30,
-  season_length = 12
+  period_length = 12
 )
 
 # seasonal mean forecast
@@ -73,7 +73,7 @@ weights_threedx(
   alpha_seasonal = 1,
   alpha_seasonal_decay = 0,
   n = 30,
-  season_length = 12
+  period_length = 12
 )
 
 # seasonal naive forecast
@@ -82,7 +82,7 @@ weights_threedx(
   alpha_seasonal = 1,
   alpha_seasonal_decay = 1,
   n = 30,
-  season_length = 12
+  period_length = 12
 )
 
 # last year's mean forecast
@@ -91,7 +91,7 @@ weights_threedx(
   alpha_seasonal = 0,
   alpha_seasonal_decay = 1,
   n = 30,
-  season_length = 12
+  period_length = 12
 )
 
 }

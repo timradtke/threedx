@@ -10,7 +10,7 @@
 #'   exponential decay in the weights is
 #' @param n The number of weights to create; this is usually equal to the
 #'   number of observations in a time series
-#' @param season_length The length of the seasonal period to be modeled
+#' @param period_length The length of the seasonal period to be modeled
 #' 
 #' @return A numeric vector of `n` values between 0 and 1 that sum up to 1
 #' 
@@ -19,23 +19,23 @@
 #' 
 #' @examples
 #' round(
-#'   weights_seasonal(alpha_seasonal = 0.25, n = 8, season_length = 7L),
+#'   weights_seasonal(alpha_seasonal = 0.25, n = 8, period_length = 7L),
 #'   3
 #' )
 #' 
 #' round(
-#'   weights_seasonal(alpha_seasonal = 0.75, n = 27, season_length = 12L),
+#'   weights_seasonal(alpha_seasonal = 0.75, n = 27, period_length = 12L),
 #'   3
 #' )
 #' 
 #' # "seasonal mean" weights
-#' weights_seasonal(alpha_seasonal = 1, n = 30, season_length = 7L)
+#' weights_seasonal(alpha_seasonal = 1, n = 30, period_length = 7L)
 #' 
 #' # mean weights
-#' weights_seasonal(alpha_seasonal = 0, n = 30, season_length = 7L)
+#' weights_seasonal(alpha_seasonal = 0, n = 30, period_length = 7L)
 #' 
 #' @export
-weights_seasonal <- function(alpha_seasonal, n, season_length) {
+weights_seasonal <- function(alpha_seasonal, n, period_length) {
   checkmate::assert_numeric(
     x = alpha_seasonal, lower = 0, upper = 1, len = 1, any.missing = FALSE
   )
@@ -43,27 +43,27 @@ weights_seasonal <- function(alpha_seasonal, n, season_length) {
     x = n, len = 1, lower = 1, any.missing = FALSE
   )
   checkmate::assert_integerish(
-    x = season_length, len = 1, lower = 1, any.missing = FALSE
+    x = period_length, len = 1, lower = 1, any.missing = FALSE
   )
   
-  if (season_length == 1) {
+  if (period_length == 1) {
     return(rep(1/n, times = n))
   }
   
-  if (alpha_seasonal == 1 && n < season_length) {
+  if (alpha_seasonal == 1 && n < period_length) {
     # handle edge case where otherwise all weights would be zero (or NaN)
     return(weights_exponential(alpha = alpha_seasonal, n = n))
   }
   
-  seasons <- ceiling(n / season_length)
+  seasons <- ceiling(n / period_length)
   
-  n_left <- ceiling(season_length / 2) + (1 - ceiling(season_length %% 2))
-  n_right <- ceiling(season_length / 2)
+  n_left <- ceiling(period_length / 2) + (1 - ceiling(period_length %% 2))
+  n_right <- ceiling(period_length / 2)
   
   weights_left <- rev(weights_exponential(alpha = alpha_seasonal, n = n_left))
   weights_right <- weights_exponential(alpha = alpha_seasonal, n = n_left)[-n_left]
   
-  length_needed_right <- season_length - n_left
+  length_needed_right <- period_length - n_left
   
   weights <- c(
     weights_left,
@@ -71,7 +71,7 @@ weights_seasonal <- function(alpha_seasonal, n, season_length) {
   )
   
   weights <- rep(weights, times = seasons)[
-    (seasons * season_length - n + 1):(seasons * season_length)
+    (seasons * period_length - n + 1):(seasons * period_length)
   ]
   
   weights <- weights / sum(weights)
@@ -89,7 +89,7 @@ weights_seasonal <- function(alpha_seasonal, n, season_length) {
 #'   the exponential decay in the weights is
 #' @param n The number of weights to create; this is usually equal to the
 #'   number of observations in a time series
-#' @param season_length The length of the seasonal period to be modeled
+#' @param period_length The length of the seasonal period to be modeled
 #' 
 #' @return A numeric vector of `n` values between 0 and 1 that sum up to 1
 #' 
@@ -98,21 +98,21 @@ weights_seasonal <- function(alpha_seasonal, n, season_length) {
 #' @examples
 #' round(
 #'   weights_seasonal_decay(
-#'     alpha_seasonal_decay = 0.5, n = 19L, season_length = 7L
+#'     alpha_seasonal_decay = 0.5, n = 19L, period_length = 7L
 #'   ),
 #'   2
 #' )
 #' 
-#' weights_seasonal_decay(alpha_seasonal_decay = 1, n = 19L, season_length = 7L)
-#' weights_seasonal_decay(alpha_seasonal_decay = 0, n = 19L, season_length = 7L)
+#' weights_seasonal_decay(alpha_seasonal_decay = 1, n = 19L, period_length = 7L)
+#' weights_seasonal_decay(alpha_seasonal_decay = 0, n = 19L, period_length = 7L)
 #' 
 #' # no full period
-#' weights_seasonal_decay(alpha_seasonal_decay = 1, n = 4L, season_length = 7L)
+#' weights_seasonal_decay(alpha_seasonal_decay = 1, n = 4L, period_length = 7L)
 #' 
 #' @export
 weights_seasonal_decay <- function(alpha_seasonal_decay,
                                    n,
-                                   season_length) {
+                                   period_length) {
   checkmate::assert_numeric(
     x = alpha_seasonal_decay, lower = 0, upper = 1, len = 1, any.missing = FALSE
   )
@@ -120,14 +120,14 @@ weights_seasonal_decay <- function(alpha_seasonal_decay,
     x = n, len = 1, lower = 1, any.missing = FALSE
   )
   checkmate::assert_integerish(
-    x = season_length, len = 1, lower = 1, any.missing = FALSE
+    x = period_length, len = 1, lower = 1, any.missing = FALSE
   )
   
-  seasons <- ceiling(n / season_length)
+  seasons <- ceiling(n / period_length)
   
   weights <- weights_exponential(alpha = alpha_seasonal_decay, n = seasons)
-  weights <- rep(weights, each = season_length)[
-    (seasons * season_length - n + 1):(seasons * season_length)
+  weights <- rep(weights, each = period_length)[
+    (seasons * period_length - n + 1):(seasons * period_length)
   ]
   
   weights <- weights / sum(weights)

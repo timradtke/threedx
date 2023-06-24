@@ -4,12 +4,12 @@
 \alias{learn_weights}
 \title{Fit a 3DX model to a time series}
 \usage{
-learn_weights(y, season_length, alphas_grid, loss_function)
+learn_weights(y, period_length, alphas_grid, loss_function)
 }
 \arguments{
 \item{y}{The time series to be forecasted}
 
-\item{season_length}{The presumed length of a seasonal period for \code{y}}
+\item{period_length}{The presumed length of a seasonal period for \code{y}}
 
 \item{alphas_grid}{A list of possible parameter combinations to generate the
 weights of the final model. The optimal parameter set will be chosen based

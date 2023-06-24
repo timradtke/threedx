@@ -4,7 +4,7 @@
 \alias{weights_seasonal}
 \title{Derive seasonal exponential weights}
 \usage{
-weights_seasonal(alpha_seasonal, n, season_length)
+weights_seasonal(alpha_seasonal, n, period_length)
 }
 \arguments{
 \item{alpha_seasonal}{A value between 0 and 1 that determines how quick the
@@ -13,7 +13,7 @@ exponential decay in the weights is}
 \item{n}{The number of weights to create; this is usually equal to the
 number of observations in a time series}
 
-\item{season_length}{The length of the seasonal period to be modeled}
+\item{period_length}{The length of the seasonal period to be modeled}
 }
 \value{
 A numeric vector of \code{n} values between 0 and 1 that sum up to 1
@@ -27,20 +27,20 @@ current season. See examples for illustrations of this.
 }
 \examples{
 round(
-  weights_seasonal(alpha_seasonal = 0.25, n = 8, season_length = 7L),
+  weights_seasonal(alpha_seasonal = 0.25, n = 8, period_length = 7L),
   3
 )
 
 round(
-  weights_seasonal(alpha_seasonal = 0.75, n = 27, season_length = 12L),
+  weights_seasonal(alpha_seasonal = 0.75, n = 27, period_length = 12L),
   3
 )
 
 # "seasonal mean" weights
-weights_seasonal(alpha_seasonal = 1, n = 30, season_length = 7L)
+weights_seasonal(alpha_seasonal = 1, n = 30, period_length = 7L)
 
 # mean weights
-weights_seasonal(alpha_seasonal = 0, n = 30, season_length = 7L)
+weights_seasonal(alpha_seasonal = 0, n = 30, period_length = 7L)
 
 }
 \seealso{

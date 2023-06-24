@@ -2,7 +2,7 @@
 #' Fit a 3DX model to a time series
 #' 
 #' @param y The time series to be forecasted
-#' @param season_length The presumed length of a seasonal period for `y`
+#' @param period_length The presumed length of a seasonal period for `y`
 #' @param alphas_grid A list of possible parameter combinations to generate the
 #'   weights of the final model. The optimal parameter set will be chosen based
 #'   on the minimization of `loss_function`. Each entry of `alphas_grid` must
@@ -23,7 +23,7 @@
 #' 
 #' @export
 learn_weights <- function(y,
-                          season_length,
+                          period_length,
                           alphas_grid,
                           loss_function) {
   
@@ -31,7 +31,7 @@ learn_weights <- function(y,
     x = y, any.missing = FALSE, min.len = 2
   )
   checkmate::assert_integerish(
-    x = season_length, lower = 1, len = 1, any.missing = FALSE
+    x = period_length, lower = 1, len = 1, any.missing = FALSE
   )
   checkmate::assert_list(
     x = alphas_grid, min.len = 1, any.missing = FALSE, types = "numeric"
@@ -42,7 +42,7 @@ learn_weights <- function(y,
   
   n <- length(y)
   
-  offset <- season_length
+  offset <- period_length
   if (n <= offset) {
     offset <- 1
   }
@@ -59,7 +59,7 @@ learn_weights <- function(y,
         y = y[seq_len(n - i_steps_back)],
         alphas_grid = alphas_grid,
         n = n - i_steps_back,
-        season_length = season_length
+        period_length = period_length
       )
   }
   
@@ -82,7 +82,7 @@ learn_weights <- function(y,
         alpha_seasonal = best_alphas[2],
         alpha_seasonal_decay = best_alphas[3],
         n = n,
-        season_length = season_length
+        period_length = period_length
       ),
       alpha = best_alphas[1],
       alpha_seasonal = best_alphas[2],
@@ -91,7 +91,7 @@ learn_weights <- function(y,
       residuals = step_ahead_residuals[, best_alphas_idx, drop = TRUE],
       y = y,
       n = n,
-      season_length = season_length,
+      period_length = period_length,
       loss_function = loss_function,
       loss = step_ahead_loss[best_alphas_idx],
       full = list(
@@ -118,12 +118,12 @@ learn_weights <- function(y,
 #' @param y The time series vector of length `n`
 #' @param alphas_grid The list of possible parameter combinations
 #' @param n The number of observations in the time series
-#' @param season_length The length of the seasonal period
+#' @param period_length The length of the seasonal period
 #' 
 #' @return A numeric vector of length `length(alphas_grid)`
 #' 
 #' @keywords internal
-predict_one_step_ahead_with_grid <- function(y, alphas_grid, n, season_length) {
+predict_one_step_ahead_with_grid <- function(y, alphas_grid, n, period_length) {
   weight_grid <- vapply(
     X = alphas_grid,
     FUN = function(alphas) {
@@ -132,7 +132,7 @@ predict_one_step_ahead_with_grid <- function(y, alphas_grid, n, season_length) {
         alpha_seasonal = alphas[2],
         alpha_seasonal_decay = alphas[3],
         n = n,
-        season_length = season_length
+        period_length = period_length
       )
     },
     FUN.VALUE = numeric(length = n),

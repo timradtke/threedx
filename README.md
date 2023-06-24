@@ -48,7 +48,7 @@ alphas_grid <- list_sampled_alphas(n_target = 1000L)
 model <- learn_weights(
   y = y,
   alphas_grid = alphas_grid,
-  season_length = 12L,
+  period_length = 12L,
   loss_function = loss_mae
 )
 

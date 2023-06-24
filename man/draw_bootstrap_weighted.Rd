@@ -27,7 +27,7 @@ Draw innovations by bootstrapping from weighted residual errors
 \examples{
 model <- learn_weights(
   y = rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6))),
-  season_length = 12L,
+  period_length = 12L,
   alphas_grid = list_sampled_alphas(n_target = 25),
   loss_function = loss_mae
 )
