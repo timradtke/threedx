@@ -46,13 +46,15 @@ Written in pure R, and with the `checkmate` package as the only direct dependenc
 
 ```{r example_series}
 y <- rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6)))
-plot(y)
 ```
 
 ```{r forecast_with_threedx}
 library(threedx)
 
-alphas_grid <- list_sampled_alphas(n_target = 1000L)
+alphas_grid <- list_sampled_alphas(
+  n_target = 1000L,
+  include_edge_cases = TRUE
+)
 
 model <- learn_weights(
   y = y,
@@ -69,18 +71,9 @@ forecast <- predict(
 )
 ```
 
-```{r plot_forecast, echo = FALSE}
-n_obs <- length(y)
-horizon <- 12
+When `ggplot2` is available, we can use `autoplot()` to visualize the forecast object:
 
-plot(c(1, n_obs + horizon), c(0, 20), type = "n",
-     xlab = "Index", ylab = "Value")
-points(y, pch = 19, cex = (model$weights - min(model$weights)) / (max(model$weights) - min(model$weights)))
-points(y, pch = 1)
-lines((n_obs+1):(n_obs+horizon), apply(forecast$paths, 2, quantile, 0.05), col = "grey")
-lines((n_obs+1):(n_obs+horizon), apply(forecast$paths, 2, quantile, 0.95), col = "grey")
-lines((n_obs+1):(n_obs+horizon), apply(forecast$paths, 2, quantile, 0.2), col = "darkgrey")
-lines((n_obs+1):(n_obs+horizon), apply(forecast$paths, 2, quantile, 0.8), col = "darkgrey")
-lines((n_obs+1):(n_obs+horizon), apply(forecast$paths, 2, median))
-lines((n_obs+1):(n_obs+horizon), apply(forecast$paths, 2, mean), lty = 2)
+```{r plot_forecast, echo = TRUE}
+library(ggplot2)
+autoplot(forecast)
 ```

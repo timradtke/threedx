@@ -1,2 +1,3 @@
 R/zzz.R
 R/threedx-package.R
+R/autoplot.R
