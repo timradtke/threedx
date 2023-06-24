@@ -4,7 +4,7 @@
 \alias{weights_seasonal_decay}
 \title{Derive weights with seasonal exponential decay}
 \usage{
-weights_seasonal_decay(alpha_seasonal_decay, n, season_length)
+weights_seasonal_decay(alpha_seasonal_decay, n, period_length)
 }
 \arguments{
 \item{alpha_seasonal_decay}{A value between 0 and 1 that determines how quick
@@ -13,7 +13,7 @@ the exponential decay in the weights is}
 \item{n}{The number of weights to create; this is usually equal to the
 number of observations in a time series}
 
-\item{season_length}{The length of the seasonal period to be modeled}
+\item{period_length}{The length of the seasonal period to be modeled}
 }
 \value{
 A numeric vector of \code{n} values between 0 and 1 that sum up to 1
@@ -27,16 +27,16 @@ follow. See examples for an illustration of this idea.
 \examples{
 round(
   weights_seasonal_decay(
-    alpha_seasonal_decay = 0.5, n = 19L, season_length = 7L
+    alpha_seasonal_decay = 0.5, n = 19L, period_length = 7L
   ),
   2
 )
 
-weights_seasonal_decay(alpha_seasonal_decay = 1, n = 19L, season_length = 7L)
-weights_seasonal_decay(alpha_seasonal_decay = 0, n = 19L, season_length = 7L)
+weights_seasonal_decay(alpha_seasonal_decay = 1, n = 19L, period_length = 7L)
+weights_seasonal_decay(alpha_seasonal_decay = 0, n = 19L, period_length = 7L)
 
 # no full period
-weights_seasonal_decay(alpha_seasonal_decay = 1, n = 4L, season_length = 7L)
+weights_seasonal_decay(alpha_seasonal_decay = 1, n = 4L, period_length = 7L)
 
 }
 \seealso{

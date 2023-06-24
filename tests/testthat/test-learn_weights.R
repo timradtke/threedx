@@ -18,7 +18,7 @@ test_that("random walk parameters generate random walk model", {
   
   model <- learn_weights(
     y = y,
-    season_length = period_length,
+    period_length = period_length,
     alphas_grid = alphas_random_walk,
     loss_function = loss_function
   )
@@ -39,7 +39,7 @@ test_that("random walk parameters generate random walk model", {
   expect_identical(model$alpha_seasonal, 0)
   expect_identical(model$alpha_seasonal_decay, 0)
   expect_identical(model$n, n_obs)
-  expect_identical(model$season_length, period_length)
+  expect_identical(model$period_length, period_length)
   expect_identical(model$y, y)
   expect_identical(
     model$residuals,
@@ -65,7 +65,7 @@ test_that("seasonal naive parameters generate seasonal naive model", {
   
   model <- learn_weights(
     y = y,
-    season_length = period_length,
+    period_length = period_length,
     alphas_grid = alphas_seasonal_naive,
     loss_function = loss_function
   )
@@ -90,7 +90,7 @@ test_that("seasonal naive parameters generate seasonal naive model", {
   expect_identical(model$alpha_seasonal, 1)
   expect_identical(model$alpha_seasonal_decay, 1)
   expect_identical(model$n, n_obs)
-  expect_identical(model$season_length, period_length)
+  expect_identical(model$period_length, period_length)
   expect_identical(model$y, y)
   expect_identical(
     model$residuals,
@@ -120,7 +120,7 @@ test_that("picks random walk as best parameters for deterministic case", {
   
   model <- learn_weights(
     y = y,
-    season_length = period_length,
+    period_length = period_length,
     alphas_grid = c(alphas_single, alphas_random_walk, alphas_seasonal_naive),
     loss_function = function(y_hat, y, ...) {
       mean(abs(y - y_hat))
@@ -143,7 +143,7 @@ test_that("picks random walk as best parameters for deterministic case", {
   expect_identical(model$alpha_seasonal, alphas_random_walk[[1]][2])
   expect_identical(model$alpha_seasonal_decay, alphas_random_walk[[1]][3])
   expect_identical(model$n, n_obs)
-  expect_identical(model$season_length, period_length)
+  expect_identical(model$period_length, period_length)
   expect_identical(model$y, y)
   expect_identical(
     model$residuals,
@@ -208,7 +208,7 @@ expect_threedx <- function(model, y, period_length, alphas_grid) {
   expect_numeric(x = model$alpha_seasonal, lower = 0, upper = 1, len = 1, any.missing = FALSE)
   expect_numeric(x = model$alpha_seasonal_decay, lower = 0, upper = 1, len = 1, any.missing = FALSE)
   expect_integer(model$n, n_obs)
-  expect_identical(model$season_length, period_length)
+  expect_identical(model$period_length, period_length)
   expect_identical(model$y, y)
   
   expect_integerish(x = model$full$best_alphas_idx, lower = 1, any.missing = FALSE, len = 1)
@@ -275,7 +275,7 @@ test_that("returns expected `threedx` object for range of inputs", {
       expect_threedx(
         model = learn_weights(
           y = input$y,
-          season_length = input$period_length,
+          period_length = input$period_length,
           alphas_grid = input$alphas_grid,
           loss_function = loss_function
         ),
@@ -347,7 +347,7 @@ test_that("returns expected `threedx` object for even and odd time series length
     FUN = function(input) {
       learn_weights(
         y = input$y,
-        season_length = input$period_length,
+        period_length = input$period_length,
         alphas_grid = input$alphas_grid,
         loss_function = loss_function
       )
@@ -360,7 +360,7 @@ test_that("returns expected `threedx` object for even and odd time series length
       expect_threedx(
         learn_weights(
           y = input$y,
-          season_length = input$period_length,
+          period_length = input$period_length,
           alphas_grid = input$alphas_grid,
           loss_function = loss_function
         ),
@@ -382,7 +382,7 @@ test_that("fails when time series has missing observations", {
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = alphas_random_walk,
       loss_function = loss_function
     )
@@ -394,7 +394,7 @@ test_that("fails when time series has missing observations", {
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = alphas_random_walk,
       loss_function = loss_function
     )
@@ -406,7 +406,7 @@ test_that("fails when time series has missing observations", {
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = alphas_random_walk,
       loss_function = loss_function
     )
@@ -417,7 +417,7 @@ test_that("fails when time series has missing observations", {
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = alphas_random_walk,
       loss_function = loss_function
     )
@@ -428,7 +428,7 @@ test_that("fails when time series is shorter than two observations", {
   expect_error(
     learn_weights(
       y = 1,
-      season_length = 12L,
+      period_length = 12L,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -437,7 +437,7 @@ test_that("fails when time series is shorter than two observations", {
   expect_error(
     learn_weights(
       y = numeric(0L),
-      season_length = 12L,
+      period_length = 12L,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -446,7 +446,7 @@ test_that("fails when time series is shorter than two observations", {
   expect_error(
     learn_weights(
       y = rnorm(1),
-      season_length = 1L,
+      period_length = 1L,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -455,7 +455,7 @@ test_that("fails when time series is shorter than two observations", {
   expect_error(
     learn_weights(
       y = numeric(0L),
-      season_length = 1L,
+      period_length = 1L,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -470,7 +470,7 @@ test_that("fails when `alphas_grid` is not a list", {
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = c(0.5, 0.5, 0.5),
       loss_function = loss_function
     )
@@ -479,7 +479,7 @@ test_that("fails when `alphas_grid` is not a list", {
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = NULL,
       loss_function = loss_function
     )
@@ -493,7 +493,7 @@ test_that("fails when `period_length` is misspecified as missing or not positive
   expect_error(
     learn_weights(
       y = y,
-      season_length = NA,
+      period_length = NA,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -502,7 +502,7 @@ test_that("fails when `period_length` is misspecified as missing or not positive
   expect_error(
     learn_weights(
       y = y,
-      season_length = NA_real_,
+      period_length = NA_real_,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -511,7 +511,7 @@ test_that("fails when `period_length` is misspecified as missing or not positive
   expect_error(
     learn_weights(
       y = y,
-      season_length = NULL,
+      period_length = NULL,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -520,7 +520,7 @@ test_that("fails when `period_length` is misspecified as missing or not positive
   expect_error(
     learn_weights(
       y = y,
-      season_length = 12.5,
+      period_length = 12.5,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -529,7 +529,7 @@ test_that("fails when `period_length` is misspecified as missing or not positive
   expect_error(
     learn_weights(
       y = y,
-      season_length = 0L,
+      period_length = 0L,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -538,7 +538,7 @@ test_that("fails when `period_length` is misspecified as missing or not positive
   expect_error(
     learn_weights(
       y = y,
-      season_length = -7,
+      period_length = -7,
       alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
@@ -553,7 +553,7 @@ test_that("fails when `loss_function` does not provide arguments `y_hat` and `..
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = alphas_grid_sampled,
       loss_function = NULL
     )
@@ -562,7 +562,7 @@ test_that("fails when `loss_function` does not provide arguments `y_hat` and `..
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = alphas_grid_sampled,
       loss_function = function(y) { # no `y_hat`, `...`
         mean(abs(y), na.rm = TRUE)
@@ -573,7 +573,7 @@ test_that("fails when `loss_function` does not provide arguments `y_hat` and `..
   expect_error(
     learn_weights(
       y = y,
-      season_length = period_length,
+      period_length = period_length,
       alphas_grid = alphas_grid_sampled,
       loss_function = function(y_hat, y) { # no `...`
         mean(abs(y - y_hat), na.rm = TRUE)
