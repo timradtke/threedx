@@ -9,15 +9,17 @@
 #' @examples 
 #' list_edge_alphas()
 list_edge_alphas <- function() {
-  list(
-    c(0,0,0), # mean
-    c(1,0,0), # random walk
-    # c(1,0,1), # random walk
-    # c(1,1,0), # NaN
-    # c(1,1,1), # NaN
-    c(0,1,1), # seasonal naive
-    c(0,1,0), # seasonal mean
-    c(0,0,1)  # last year's mean
+  alphas_list_to_data_frame(
+    list(
+      c(0,0,0), # mean
+      c(1,0,0), # random walk
+      # c(1,0,1), # random walk
+      # c(1,1,0), # NaN
+      # c(1,1,1), # NaN
+      c(0,1,1), # seasonal naive
+      c(0,1,0), # seasonal mean
+      c(0,0,1)  # last year's mean
+    )
   )
 }
 
@@ -105,7 +107,7 @@ list_edge_alphas <- function() {
 #' alphas_grid <- list_sampled_alphas(n_target = 250L)
 #' 
 #' # ggplot2::ggplot(
-#' #   alphas_list_to_data_frame(alphas_grid),
+#' #   alphas_grid,
 #' #   ggplot2::aes(x = alpha, y = alpha_seasonal, fill = alpha_seasonal_decay)
 #' # ) +
 #' #   ggplot2::geom_point(pch = 21, color = "white") +
@@ -229,10 +231,10 @@ list_sampled_alphas <- function(n_target = 100,
   # trim grid down to `n_target` rows in case it has extended due to edge cases
   grid <- grid[seq_len(pmin(n_target, nrow(grid))), , drop = FALSE]
   
-  lapply(
+  alphas_list_to_data_frame(lapply(
     X = seq_len(nrow(grid)),
     FUN = function(idx) as.numeric(grid[idx, ])
-  )
+  ))
 }
 
 #' Cast a list of alphas as data frame
@@ -249,12 +251,12 @@ list_sampled_alphas <- function(n_target = 100,
 #'
 #' @seealso [list_sampled_alphas()], [list_edge_alphas()]
 #' 
-#' @export
-#' @examples
-#' alphas_list_to_data_frame(list_sampled_alphas(n_target = 10L))
+#' @keywords internal
 #' 
 alphas_list_to_data_frame <- function(alphas_grid) {
-  checkmate::assert_list(x = alphas_grid, types = "numeric", null.ok = FALSE, min.len = 1)
+  checkmate::assert_list(
+    x = alphas_grid, types = "numeric", null.ok = FALSE, min.len = 1
+  )
   
   alphas_df <- as.data.frame(
     t(

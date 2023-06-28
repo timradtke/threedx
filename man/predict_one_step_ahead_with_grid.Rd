@@ -9,14 +9,14 @@ predict_one_step_ahead_with_grid(y, alphas_grid, n, period_length)
 \arguments{
 \item{y}{The time series vector of length \code{n}}
 
-\item{alphas_grid}{The list of possible parameter combinations}
+\item{alphas_grid}{The data frame of possible parameter combinations}
 
 \item{n}{The number of observations in the time series}
 
 \item{period_length}{The length of the seasonal period}
 }
 \value{
-A numeric vector of length \code{length(alphas_grid)}
+A numeric vector of length \code{nrow(alphas_grid)}
 }
 \description{
 Generates a matrix of weights in which each column contains the weights for

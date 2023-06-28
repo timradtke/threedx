@@ -1,15 +1,19 @@
 library(checkmate)
 
-expect_list_of_numeric_length_three_in_zero_one <- function(alphas) {
-  expect_list(
-    x = alphas, types = "numeric", any.missing = FALSE, min.len = 1, 
-    unique = TRUE
+expect_df_with_three_numeric_columns_in_zero_one <- function(alphas) {
+  expect_data_frame(
+    x = alphas, types = "numeric", any.missing = FALSE, min.rows = 1,
+    ncols = 3
+  )
+  expect_names(
+    x = names(alphas),
+    identical.to = c("alpha", "alpha_seasonal", "alpha_seasonal_decay")
   )
   
   tmp <- lapply(
     X = alphas,
     FUN = expect_numeric,
-    len = 3,
+    min.len = 1,
     lower = 0,
     upper = 1,
   )
@@ -17,7 +21,7 @@ expect_list_of_numeric_length_three_in_zero_one <- function(alphas) {
   return(invisible(TRUE))
 }
 
-expect_list_in_bounds <- function(n_target,
+expect_columns_in_bounds <- function(n_target,
                                   alpha_lower,
                                   alpha_upper,
                                   alpha_seasonal_lower,
@@ -41,31 +45,30 @@ expect_list_in_bounds <- function(n_target,
     seed = NULL
   )
   
-  expect_list(
-    x = alphas, types = "numeric", any.missing = FALSE, min.len = 1, 
-    unique = TRUE, max.len = n_target
+  expect_data_frame(
+    x = alphas, types = "numeric", any.missing = FALSE, min.rows = 1, 
+    max.rows = n_target, ncols = 3
   )
   
-  alphas_vector <- unlist(alphas)
   expect_numeric(
-    x = alphas_vector[(seq_along(alphas_vector) + 2) %% 3 == 0],
+    x = alphas$alpha,
     lower = alpha_lower,
     upper = alpha_upper
   )
   expect_numeric(
-    x = alphas_vector[(seq_along(alphas_vector) + 1) %% 3 == 0],
+    x = alphas$alpha_seasonal,
     lower = alpha_seasonal_lower,
     upper = alpha_seasonal_upper
   )
   expect_numeric(
-    x = alphas_vector[seq_along(alphas_vector) %% 3 == 0],
+    x = alphas$alpha_seasonal_decay,
     lower = alpha_seasonal_decay_lower,
     upper = alpha_seasonal_decay_upper
   )
 }
 
 test_that("returns a list of <= `n_target` numeric vectors of length 3 in [0,1]", {
-  expect_list_of_numeric_length_three_in_zero_one(
+  expect_df_with_three_numeric_columns_in_zero_one(
     list_sampled_alphas(
       n_target = 100L,
       alpha_lower = 0,
@@ -81,7 +84,7 @@ test_that("returns a list of <= `n_target` numeric vectors of length 3 in [0,1]"
     )
   )
   
-  expect_list_of_numeric_length_three_in_zero_one(
+  expect_df_with_three_numeric_columns_in_zero_one(
     list_sampled_alphas(
       n_target = 100L,
       alpha_lower = 0,
@@ -97,7 +100,7 @@ test_that("returns a list of <= `n_target` numeric vectors of length 3 in [0,1]"
     )
   )
   
-  expect_list_of_numeric_length_three_in_zero_one(
+  expect_df_with_three_numeric_columns_in_zero_one(
     list_sampled_alphas(
       n_target = 1L,
       alpha_lower = 0,
@@ -113,7 +116,7 @@ test_that("returns a list of <= `n_target` numeric vectors of length 3 in [0,1]"
     )
   )
   
-  expect_list_of_numeric_length_three_in_zero_one(
+  expect_df_with_three_numeric_columns_in_zero_one(
     list_sampled_alphas(
       n_target = 1L,
       alpha_lower = 0,
@@ -131,7 +134,7 @@ test_that("returns a list of <= `n_target` numeric vectors of length 3 in [0,1]"
 })
 
 test_that("respects bounds on the three different alphas when not returning edge alphas", {
-  expect_list_in_bounds(
+  expect_columns_in_bounds(
     n_target = 100L,
     alpha_lower = 0,
     alpha_upper = 1,
@@ -143,7 +146,7 @@ test_that("respects bounds on the three different alphas when not returning edge
     oversample_upper = 0.05
   )
   
-  expect_list_in_bounds(
+  expect_columns_in_bounds(
     n_target = 100L,
     alpha_lower = 0.25,
     alpha_upper = 0.75,
@@ -155,7 +158,7 @@ test_that("respects bounds on the three different alphas when not returning edge
     oversample_upper = 0.05
   )
   
-  expect_list_in_bounds(
+  expect_columns_in_bounds(
     n_target = 1000L,
     alpha_lower = 0.25,
     alpha_upper = 0.75,
@@ -603,7 +606,14 @@ test_that("returned `alpha` is deterministic when lower bounds are equal to uppe
     seed = NULL
   )
   
-  expect_equal(alphas, list(c(0.25, 0.81, 0.1)))
+  expect_equal(
+    alphas,
+    data.frame(
+      alpha = 0.25,
+      alpha_seasonal = 0.81,
+      alpha_seasonal_decay = 0.1
+    )
+  )
 })
 
 test_that("fails when `oversample_lower` less than not positive numeric", {

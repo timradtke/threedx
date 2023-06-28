@@ -111,7 +111,7 @@ Generate a list of possible alpha values that are evaluated during training
 alphas_grid <- list_sampled_alphas(n_target = 250L)
 
 # ggplot2::ggplot(
-#   alphas_list_to_data_frame(alphas_grid),
+#   alphas_grid,
 #   ggplot2::aes(x = alpha, y = alpha_seasonal, fill = alpha_seasonal_decay)
 # ) +
 #   ggplot2::geom_point(pch = 21, color = "white") +

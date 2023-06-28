@@ -106,3 +106,36 @@ weights_threedx <- function(alpha,
   weights <- weights / sum(weights)
   return(weights)
 }
+
+#' Vectorized `weights_threedx()`
+#' 
+#' @keywords internal
+#' @examples
+#' threedx:::weights_threedx_vec(
+#'   alphas = c(0, 0.2, 0.5, 0.8, 1),
+#'   alphas_seasonal = c(0.1, 0.3, 0.55, 1, 0.25),
+#'   alphas_seasonal_decay = c(0.11, 0.01, 0.02, 0.05, 0.1),
+#'   n = 50,
+#'   period_length = 7
+#' )
+weights_threedx_vec <- function(alphas,
+                                alphas_seasonal,
+                                alphas_seasonal_decay,
+                                n,
+                                period_length) {
+  
+  weights <- weights_exponential_vec(alphas = alphas, n = n) *
+    weights_seasonal_vec(
+      alphas_seasonal = alphas_seasonal,
+      n = n,
+      period_length = period_length
+    ) *
+    weights_seasonal_decay_vec(
+      alphas_seasonal_decay = alphas_seasonal_decay,
+      n = n,
+      period_length = period_length
+    )
+  
+  weights <- weights / rowSums(weights)
+  return(weights)
+}

@@ -19,10 +19,7 @@ A helper function that casts a list of parameter tuples (as used for
 \code{\link[=learn_weights]{learn_weights()}}) as a named data frame. This is useful to, for example,
 plot the parameters via \code{ggplot2}.
 }
-\examples{
-alphas_list_to_data_frame(list_sampled_alphas(n_target = 10L))
-
-}
 \seealso{
 \code{\link[=list_sampled_alphas]{list_sampled_alphas()}}, \code{\link[=list_edge_alphas]{list_edge_alphas()}}
 }
+\keyword{internal}

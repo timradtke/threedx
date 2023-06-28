@@ -4,7 +4,6 @@ if (getRversion() >= "3.6.0") {
   S3method(ggplot2::autoplot, threedx_paths)
 }
 S3method(predict,threedx)
-export(alphas_list_to_data_frame)
 export(draw_bootstrap)
 export(draw_bootstrap_weighted)
 export(draw_normal_with_drift)

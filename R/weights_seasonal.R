@@ -67,7 +67,9 @@ weights_seasonal <- function(alpha_seasonal, n, period_length) {
   
   weights <- c(
     weights_left,
-    weights_right[(length(weights_right) - length_needed_right + 1):length(weights_right)][seq_len(length_needed_right)]
+    weights_right[
+      (length(weights_right) - length_needed_right + 1):length(weights_right)
+    ][seq_len(length_needed_right)]
   )
   
   weights <- rep(weights, times = seasons)[
@@ -131,5 +133,144 @@ weights_seasonal_decay <- function(alpha_seasonal_decay,
   ]
   
   weights <- weights / sum(weights)
+  return(weights)
+}
+
+#' Vectorized `weights_seasonal_decay()`
+#' 
+#' @keywords internal
+#' @examples
+#' t(vapply(
+#'   X = c(1, 0.2, 0.5, 0.8, 0),
+#'   FUN = weights_seasonal_decay,
+#'   n = 50,
+#'   period_length = 12,
+#'   FUN.VALUE = numeric(50),
+#'   USE.NAMES = FALSE
+#' ))
+#' 
+#' threedx:::weights_seasonal_decay_vec(
+#'   alphas_seasonal_decay = c(0.2, 0.5, 0.8), n = 50, period_length = 12L
+#' )
+weights_seasonal_decay_vec <- function(alphas_seasonal_decay,
+                                       n,
+                                       period_length) {
+  checkmate::assert_numeric(
+    x = alphas_seasonal_decay,
+    lower = 0, upper = 1, min.len = 1, any.missing = FALSE
+  )
+  checkmate::assert_integerish(
+    x = n, len = 1, lower = 1, any.missing = FALSE
+  )
+  checkmate::assert_integerish(
+    x = period_length, len = 1, lower = 3, any.missing = FALSE
+  )
+  
+  seasons <- ceiling(n / period_length)
+  weights <- weights_exponential_vec(
+    alphas = alphas_seasonal_decay, n = seasons
+  )
+  
+  # dummy matrix with `seasons` rows and `n` columns
+  
+  dummy_left <- matrix(
+    rep(1:seasons, times = seasons * period_length),
+    nrow = seasons,
+    ncol = seasons * period_length
+  )
+  
+  dummy_right <- matrix(
+    rep(1:seasons, each = period_length),
+    nrow = seasons,
+    ncol = seasons * period_length,
+    byrow = TRUE
+  )
+  
+  dummy <- ((dummy_left - dummy_right) == 0)
+  dummy <- dummy[, (seasons * period_length - n + 1):(seasons * period_length)]
+  
+  weights <- weights %*% dummy
+  weights <- weights / rowSums(weights)
+  
+  return(weights)
+}
+
+#' Vectorized `weights_seasonal()`
+#' 
+#' @keywords internal
+#' @examples
+#' t(vapply(
+#'   X = c(1, 0.2, 0.5, 0.8, 0),
+#'   FUN = weights_seasonal,
+#'   n = 50,
+#'   period_length = 12,
+#'   FUN.VALUE = numeric(50),
+#'   USE.NAMES = FALSE
+#' ))
+#' 
+#' threedx:::weights_seasonal_vec(
+#'   alphas_seasonal = c(1, 0.2, 0.5, 0.8, 0), n = 50, period_length = 12L
+#' )
+#' 
+weights_seasonal_vec <- function(alphas_seasonal, n, period_length) {
+  checkmate::assert_numeric(
+    x = alphas_seasonal, lower = 0, upper = 1, min.len = 1, any.missing = FALSE
+  )
+  checkmate::assert_integerish(
+    x = n, len = 1, lower = 1, any.missing = FALSE
+  )
+  checkmate::assert_integerish(
+    x = period_length, len = 1, lower = 3, any.missing = FALSE
+  )
+  
+  seasons <- ceiling(n / period_length)
+  
+  n_left <- ceiling(period_length / 2) + (1 - ceiling(period_length %% 2))
+  n_right <- ceiling(period_length / 2)
+  
+  weights_base <- weights_exponential_vec(alphas = alphas_seasonal, n = n_left)
+  weights_left <- weights_base[, rev(seq_len(n_left)), drop = FALSE]
+  weights_right <- weights_base[, -n_left, drop = FALSE]
+  
+  length_needed_right <- period_length - n_left
+  
+  weights <- cbind(
+    weights_left,
+    weights_right[
+      , (ncol(weights_right) - length_needed_right + 1):ncol(weights_right),
+      drop = FALSE
+    ][, seq_len(length_needed_right), drop = FALSE]
+  )
+  
+  # period_length rows, period_length * seasons columns
+  dummy_left <- matrix(
+    seq_len(period_length),
+    nrow = period_length,
+    ncol = seasons * period_length
+  )
+  
+  dummy_right <- matrix(
+    rep(seq_len(period_length), times = seasons),
+    nrow = period_length,
+    ncol = seasons * period_length,
+    byrow = TRUE
+  )
+  
+  # this is as if we cbind `diag(period_length)` seasons-times together
+  dummy <- ((dummy_left - dummy_right) == 0)
+  dummy <- dummy[, (seasons * period_length - n + 1):(seasons * period_length)]
+  
+  weights <- weights %*% dummy
+  
+  if (any(alphas_seasonal == 1) && n < period_length) {
+    # handle edge case where otherwise all weights would be zero (or NaN)
+    # same as: `weights_exponential(alpha = 1, n = n)`
+    
+    weights[alphas_seasonal == 1, ncol(weights)] <- 1
+    weights[alphas_seasonal == 1, -ncol(weights)] <- 0
+  }
+  
+  weights <- weights / rowSums(weights)
+  
   return(weights)
 }
