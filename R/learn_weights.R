@@ -3,10 +3,11 @@
 #' 
 #' @param y The time series to be forecasted
 #' @param period_length The presumed length of a seasonal period for `y`
-#' @param alphas_grid A list of possible parameter combinations to generate the
-#'   weights of the final model. The optimal parameter set will be chosen based
-#'   on the minimization of `loss_function`. Each entry of `alphas_grid` must
-#'   be a numeric vector of length three.
+#' @param alphas_grid A data frame of possible parameter combinations to
+#'   generate the weights of the final model. The optimal parameter set will be
+#'   chosen based on the minimization of `loss_function`. The expected columns
+#'   are numeric and called `alpha`, `alpha_seasonal`, `alpha_seasonal_decay`.
+#'   At least one row must be provided.
 #'   This list can be generated via [list_sampled_alphas()] or
 #'   [list_edge_alphas()], for example.
 #' @param loss_function A function with first argument `y_hat` and optionally
@@ -31,10 +32,14 @@ learn_weights <- function(y,
     x = y, any.missing = FALSE, min.len = 2
   )
   checkmate::assert_integerish(
-    x = period_length, lower = 1, len = 1, any.missing = FALSE
+    x = period_length, lower = 3, len = 1, any.missing = FALSE
   )
-  checkmate::assert_list(
-    x = alphas_grid, min.len = 1, any.missing = FALSE, types = "numeric"
+  checkmate::assert_data_frame(
+    x = alphas_grid, min.rows = 1, any.missing = FALSE, types = "numeric"
+  )
+  checkmate::assert_names(
+    x = names(alphas_grid),
+    permutation.of = c("alpha", "alpha_seasonal", "alpha_seasonal_decay")
   )
   checkmate::assert_function(
     x = loss_function, args = c("y_hat", "..."), ordered = FALSE
@@ -50,7 +55,7 @@ learn_weights <- function(y,
   step_ahead_predictions <- matrix(
     data = NA_real_,
     nrow = n,
-    ncol = length(alphas_grid)
+    ncol = nrow(alphas_grid)
   )
   
   for (i_steps_back in 1:(n - offset)) {
@@ -71,22 +76,23 @@ learn_weights <- function(y,
   )
   
   best_alphas_idx <- which.min(step_ahead_loss)
-  best_alphas <- alphas_grid[[best_alphas_idx]]
+  best_alphas <- alphas_grid[best_alphas_idx, ]
+  row.names(best_alphas) <- NULL
   
   step_ahead_residuals <- y - step_ahead_predictions
   
   result <- structure(
     list(
       weights = weights_threedx(
-        alpha = best_alphas[1],
-        alpha_seasonal = best_alphas[2],
-        alpha_seasonal_decay = best_alphas[3],
+        alpha = best_alphas$alpha,
+        alpha_seasonal = best_alphas$alpha_seasonal,
+        alpha_seasonal_decay = best_alphas$alpha_seasonal_decay,
         n = n,
         period_length = period_length
       ),
-      alpha = best_alphas[1],
-      alpha_seasonal = best_alphas[2],
-      alpha_seasonal_decay = best_alphas[3],
+      alpha = best_alphas$alpha,
+      alpha_seasonal = best_alphas$alpha_seasonal,
+      alpha_seasonal_decay = best_alphas$alpha_seasonal_decay,
       fitted = step_ahead_predictions[, best_alphas_idx, drop = TRUE],
       residuals = step_ahead_residuals[, best_alphas_idx, drop = TRUE],
       y = y,
@@ -116,28 +122,21 @@ learn_weights <- function(y,
 #' by matrix multiplication with the time series vector.
 #' 
 #' @param y The time series vector of length `n`
-#' @param alphas_grid The list of possible parameter combinations
+#' @param alphas_grid The data frame of possible parameter combinations
 #' @param n The number of observations in the time series
 #' @param period_length The length of the seasonal period
 #' 
-#' @return A numeric vector of length `length(alphas_grid)`
+#' @return A numeric vector of length `nrow(alphas_grid)`
 #' 
 #' @keywords internal
 predict_one_step_ahead_with_grid <- function(y, alphas_grid, n, period_length) {
-  weight_grid <- vapply(
-    X = alphas_grid,
-    FUN = function(alphas) {
-      weights_threedx(
-        alpha = alphas[1],
-        alpha_seasonal = alphas[2],
-        alpha_seasonal_decay = alphas[3],
-        n = n,
-        period_length = period_length
-      )
-    },
-    FUN.VALUE = numeric(length = n),
-    USE.NAMES = FALSE
+  weight_grid <- weights_threedx_vec(
+    alphas = alphas_grid$alpha,
+    alphas_seasonal = alphas_grid$alpha_seasonal,
+    alphas_seasonal_decay = alphas_grid$alpha_seasonal_decay,
+    n = n,
+    period_length = period_length
   )
   
-  matrix(data = y, nrow = 1) %*% weight_grid
+  matrix(data = y, nrow = 1) %*% t(weight_grid)
 }

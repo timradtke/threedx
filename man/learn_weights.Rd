@@ -11,10 +11,11 @@ learn_weights(y, period_length, alphas_grid, loss_function)
 
 \item{period_length}{The presumed length of a seasonal period for \code{y}}
 
-\item{alphas_grid}{A list of possible parameter combinations to generate the
-weights of the final model. The optimal parameter set will be chosen based
-on the minimization of \code{loss_function}. Each entry of \code{alphas_grid} must
-be a numeric vector of length three.
+\item{alphas_grid}{A data frame of possible parameter combinations to
+generate the weights of the final model. The optimal parameter set will be
+chosen based on the minimization of \code{loss_function}. The expected columns
+are numeric and called \code{alpha}, \code{alpha_seasonal}, \code{alpha_seasonal_decay}.
+At least one row must be provided.
 This list can be generated via \code{\link[=list_sampled_alphas]{list_sampled_alphas()}} or
 \code{\link[=list_edge_alphas]{list_edge_alphas()}}, for example.}
 

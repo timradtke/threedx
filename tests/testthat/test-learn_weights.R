@@ -3,10 +3,26 @@ library(checkmate)
 
 set.seed(5728)
 
-alphas_single <- list(c(0.5, 0.5, 0.5))
-alphas_random_walk <- list(c(1, 0, 0))
-alphas_seasonal_naive <- list(c(0, 1, 1))
+alphas_single <- data.frame(
+  alpha = 0.5,
+  alpha_seasonal = 0.5,
+  alpha_seasonal_decay = 0.5
+)
+
+alphas_random_walk <- data.frame(
+  alpha = 1,
+  alpha_seasonal = 0,
+  alpha_seasonal_decay = 0
+)
+
+alphas_seasonal_naive <- data.frame(
+  alpha = 0,
+  alpha_seasonal = 1,
+  alpha_seasonal_decay = 1
+)
+
 alphas_grid_sampled <- list_sampled_alphas(n_target = 25)
+
 loss_function <- function(y_hat, y, ...) {
   mean(abs(y - y_hat))
 }
@@ -47,7 +63,7 @@ test_that("random walk parameters generate random walk model", {
   )
   
   expect_identical(model$full$best_alphas_idx, 1L)
-  expect_identical(model$full$best_alphas, unlist(alphas_random_walk))
+  expect_identical(model$full$best_alphas, alphas_random_walk)
   expect_identical(
     model$full$residuals,
     matrix(model$residuals, ncol = 1)
@@ -98,7 +114,7 @@ test_that("seasonal naive parameters generate seasonal naive model", {
   )
   
   expect_identical(model$full$best_alphas_idx, 1L)
-  expect_identical(model$full$best_alphas, unlist(alphas_seasonal_naive))
+  expect_identical(model$full$best_alphas, alphas_seasonal_naive)
   expect_identical(
     model$full$residuals,
     matrix(model$residuals, ncol = 1)
@@ -121,7 +137,9 @@ test_that("picks random walk as best parameters for deterministic case", {
   model <- learn_weights(
     y = y,
     period_length = period_length,
-    alphas_grid = c(alphas_single, alphas_random_walk, alphas_seasonal_naive),
+    alphas_grid = rbind(
+      alphas_single, alphas_random_walk, alphas_seasonal_naive
+    ),
     loss_function = function(y_hat, y, ...) {
       mean(abs(y - y_hat))
     }
@@ -139,9 +157,9 @@ test_that("picks random walk as best parameters for deterministic case", {
     c(rep(0, (n_obs - 1)), 1)
   )
   
-  expect_identical(model$alpha, alphas_random_walk[[1]][1])
-  expect_identical(model$alpha_seasonal, alphas_random_walk[[1]][2])
-  expect_identical(model$alpha_seasonal_decay, alphas_random_walk[[1]][3])
+  expect_identical(model$alpha, alphas_random_walk[[1]])
+  expect_identical(model$alpha_seasonal, alphas_random_walk[[2]])
+  expect_identical(model$alpha_seasonal_decay, alphas_random_walk[[3]])
   expect_identical(model$n, n_obs)
   expect_identical(model$period_length, period_length)
   expect_identical(model$y, y)
@@ -151,7 +169,7 @@ test_that("picks random walk as best parameters for deterministic case", {
   )
   
   expect_identical(model$full$best_alphas_idx, 2L)
-  expect_identical(model$full$best_alphas, unlist(alphas_random_walk))
+  expect_identical(model$full$best_alphas, alphas_random_walk)
   expect_identical(
     model$full$residuals[, 2, drop = FALSE],
     matrix(model$residuals, ncol = 1)
@@ -180,10 +198,10 @@ expect_threedx <- function(model, y, period_length, alphas_grid) {
   expect_class(model, "threedx")
   
   n_obs <- length(y)
-  n_params <- length(alphas_grid)
+  n_params <- nrow(alphas_grid)
   
   n_initial_period <- period_length
-  if (n_obs < period_length) {
+  if (n_obs <= period_length) {
     n_initial_period <- 1
   }
   
@@ -212,7 +230,6 @@ expect_threedx <- function(model, y, period_length, alphas_grid) {
   expect_identical(model$y, y)
   
   expect_integerish(x = model$full$best_alphas_idx, lower = 1, any.missing = FALSE, len = 1)
-  expect_numeric(x = model$full$best_alphas, lower = 0, upper = 1, any.missing = FALSE, len = 3)
   
   expect_matrix(
     x = model$full$residuals, mode = "numeric", nrows = n_obs, ncols = n_params,
@@ -264,7 +281,7 @@ test_that("returns expected `threedx` object for range of inputs", {
     ),
     list(
       y = 1:3,
-      period_length = 1L,
+      period_length = 3L,
       alphas_grid = alphas_grid_sampled
     )
   )
@@ -332,12 +349,12 @@ test_that("returns expected `threedx` object for even and odd time series length
     ),
     list(
       y = 1:3,
-      period_length = 1L,
+      period_length = 3L,
       alphas_grid = alphas_grid_sampled
     ),
     list(
       y = 1:4,
-      period_length = 1L,
+      period_length = 3L,
       alphas_grid = alphas_grid_sampled
     )
   )
@@ -481,6 +498,29 @@ test_that("fails when `alphas_grid` is not a list", {
       y = y,
       period_length = period_length,
       alphas_grid = NULL,
+      loss_function = loss_function
+    )
+  )
+})
+
+test_that("fails when `period_length` is less than 3", {
+  n_obs <- 50L
+  y <- seq_len(n_obs)
+  
+  expect_error(
+    learn_weights(
+      y = y,
+      period_length = 2,
+      alphas_grid = alphas_grid_sampled,
+      loss_function = loss_function
+    )
+  )
+  
+  expect_error(
+    learn_weights(
+      y = y,
+      period_length = 1,
+      alphas_grid = alphas_grid_sampled,
       loss_function = loss_function
     )
   )
