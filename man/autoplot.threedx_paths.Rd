@@ -4,7 +4,7 @@
 \alias{autoplot.threedx_paths}
 \title{Autoplot method for \code{threedx_paths} objects}
 \usage{
-autoplot.threedx_paths(
+\method{autoplot}{threedx_paths}(
   object,
   ...,
   method = c("forecast", "paths")[1],

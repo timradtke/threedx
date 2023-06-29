@@ -6,7 +6,7 @@
 \alias{threedx-package}
 \title{threedx: Three-Dimensional Exponential Smoothing Forecasts}
 \description{
-What the package does (one paragraph).
+Use 3DX to generate interpretable probabilistic forecasts by purely weighting values from the observed time series. Unique about 3DX is that it can be used to derive forecasts not only based on a “latent state” but also observation-driven, drawing future realizations purely from observed values. This can be effective for count or intermittent series. The 3DX sampling distribution is a combination of three components: The first weighs observations exponentially, the second weighs observations within each seasonal period exponentially, the third weighs the seasonal periods over time exponentially.
 }
 \seealso{
 Useful links:
