@@ -71,7 +71,10 @@ predict.threedx <- function(object,
   result <- structure(
     list(
       paths = paths,
-      model = object
+      model = object,
+      horizon = horizon,
+      n_samples = n_samples,
+      observation_driven = observation_driven
     ),
     class = "threedx_paths"
   )

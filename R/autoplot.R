@@ -258,6 +258,9 @@ plot_paths <- function(object,
                    "; seasonal: ", round(model$alpha_seasonal, 4),
                    "; decay: ", round(model$alpha_seasonal_decay, 4))
   
+  observation_driven <- paste0("Is observation-driven: ",
+                               object$observation_driven)
+  
   if (is.null(date) || is.null(date_future)) {
     date_label <- NA
     date <- 1:length(model$y)
@@ -272,6 +275,7 @@ plot_paths <- function(object,
   
   df_future <- data.frame(
     params = params,
+    observation_driven = observation_driven,
     date = rep(date_future, times = n),
     sample_index = rep(sample_idx, each = dim(paths)[1]),
     value = NA
@@ -285,6 +289,7 @@ plot_paths <- function(object,
   
   df_input <- data.frame(
     params = params,
+    observation_driven = observation_driven,
     date = date,
     value = model$y
   )
@@ -326,7 +331,7 @@ plot_paths <- function(object,
   }
   
   if (show_params) {
-    ggp <- ggp + ggplot2::facet_wrap(~ params)
+    ggp <- ggp + ggplot2::facet_wrap(~ params + observation_driven)
   }
   
   return(ggp)
@@ -419,16 +424,21 @@ plot_forecast <- function(object,
                    "; seasonal: ", round(model$alpha_seasonal, 4),
                    "; decay: ", round(model$alpha_seasonal_decay, 4))
   
+  observation_driven <- paste0("Is observation-driven: ",
+                               object$observation_driven)
+  
   df_input <- data.frame(
     date = date,
     value = model$y,
     weight = model$weights,
-    params = params
+    params = params,
+    observation_driven = observation_driven
   )
   
   df_future <- data.frame(
     date = date_future,
     params = params,
+    observation_driven = observation_driven,
     y_hat_1l = apply(paths, 1, stats::quantile, 0.5 / 12, na.rm = TRUE),
     y_hat_2l = apply(paths, 1, stats::quantile, 2 / 12, na.rm = TRUE),
     y_hat_3l = apply(paths, 1, stats::quantile, 3 / 12, na.rm = TRUE),
@@ -489,7 +499,7 @@ plot_forecast <- function(object,
   }
   
   if (show_params) {
-    ggp <- ggp + ggplot2::facet_wrap(~ params)
+    ggp <- ggp + ggplot2::facet_wrap(~ params + observation_driven)
   }
   
   return(ggp)

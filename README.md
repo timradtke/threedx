@@ -69,3 +69,11 @@ autoplot(forecast)
 ```
 
 <img src="man/figures/README-plot_forecast-1.svg" width="100%" />
+
+## References
+
+Alexander Alexandrov et al. (2019). *GluonTS: Probabilistic Time Series
+Models in Python*. <https://arxiv.org/abs/1906.05264>
+
+Jan Gasthaus (2016). *Non-parametric time series forecaster*. Technical
+report, Amazon, 2016.

@@ -18,9 +18,16 @@ expect_threedx_paths <- function(forecast,
                                  observation_driven) {
   
   expect_class(x = forecast, classes = "threedx_paths")
-  expect_list(x = forecast, len = 2, names = "unique")
-  expect_names(x = names(forecast), identical.to = c("paths", "model"))
+  expect_list(x = forecast, min.len = 2, names = "unique")
+  expect_names(
+    x = names(forecast),
+    must.include = c("paths", "model", "horizon", "n_samples",
+                     "observation_driven")
+  )
   expect_identical(model, forecast$model)
+  expect_identical(horizon, forecast$horizon)
+  expect_identical(n_samples, forecast$n_samples)
+  expect_identical(observation_driven, forecast$observation_driven)
   
   expect_matrix(
     x = forecast$paths,
