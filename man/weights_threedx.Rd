@@ -96,6 +96,6 @@ weights_threedx(
 
 }
 \seealso{
-\code{\link[=weights_seasonal_decay]{weights_seasonal_decay()}}, \code{\link[=weights_exponential]{weights_exponential()}},
-\code{\link[=weights_threedx]{weights_threedx()}}
+\code{\link[=weights_exponential]{weights_exponential()}}, \code{\link[=weights_seasonal]{weights_seasonal()}},
+\code{\link[=weights_seasonal_decay]{weights_seasonal_decay()}}
 }

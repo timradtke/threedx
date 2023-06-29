@@ -27,13 +27,15 @@ set.seed(9284)
 [![Codecov test coverage](https://codecov.io/gh/timradtke/threedx/branch/main/graph/badge.svg)](https://app.codecov.io/gh/timradtke/threedx?branch=main)
 <!-- badges: end -->
 
-Use 3DX to generate interpretable probabilistic forecasts purely by weighting values from the observed time series.
+Use 3DX to generate interpretable probabilistic forecasts by purely weighting values from the observed time series---call it "attention" if you like!
 
 What's unique about 3DX is that it can be used to derive forecasts not only based on a "latent state" but also observation-driven, drawing future realizations purely from observed values. This can be effective for count or intermittent series.
 
+3DX builds on ideas from the NPTS model described in [Alexandrov et al. (2019)](https://arxiv.org/abs/1906.05264). It's sampling distribution is a combination of three components: The first weighs observations exponentially, the second weighs observations within each seasonal period exponentially, the third weighs the seasonal periods over time exponentially.
+
 ## Installation
 
-You can install the development version of threedx from [GitHub](https://github.com/) with:
+You can install the development version of threedx from [GitHub](https://github.com/timradtke/threedx) with:
 
 ``` r
 # install.packages("devtools")
@@ -44,22 +46,26 @@ Written in pure R, and with the `checkmate` package as the only direct dependenc
 
 ## Get Started
 
+Let's generate a sparse monthly time series that has a strong seasonality.
+
 ```{r example_series}
-y <- rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6)))
+y <- rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(6:59 / 6)))
 ```
+
+To forecast the series, we first fit a model by learning appropriate weights given the period length of the series' seasonality.
+
+Afterwards, the model can be used to derive a forecast using R's `predict()` method.
 
 ```{r forecast_with_threedx}
 library(threedx)
 
-alphas_grid <- list_sampled_alphas(
-  n_target = 1000L,
-  include_edge_cases = TRUE
-)
-
-model <- learn_weights(
+model <- threedx::learn_weights(
   y = y,
-  alphas_grid = alphas_grid,
   period_length = 12L,
+  alphas_grid = threedx::list_sampled_alphas(
+    n_target = 1000L,
+    include_edge_cases = TRUE
+  ),
   loss_function = loss_mae
 )
 
@@ -73,9 +79,124 @@ forecast <- predict(
 
 When `ggplot2` is available, we can use `autoplot()` to visualize the forecast object:
 
-```{r plot_forecast, echo = TRUE}
+```{r plot_forecast, echo = TRUE, fig.height = 3.5}
 library(ggplot2)
 autoplot(forecast)
+```
+
+The native output of a 3DX model are forecast sample paths, which can be accessed via `forecast$paths`. Visualize (a few of) them instead of quantile predictions by specifying the method `"paths"`:
+
+```{r plot_sample_paths, echo = TRUE, fig.height = 3.5}
+autoplot(forecast, method = "paths", n = 5)
+```
+
+## How It Works
+
+The basis for a 3DX model are different ways of assigning a categorical probability distribution to the indices of the observed time series.
+
+The distribution used in a 3DX model is based on a combination of three components that come together in `weights_threedx()`. For a time series of 25 daily observations, weights could look like this:
+
+```{r weights_threedx}
+threedx::weights_threedx(
+  alpha = 0.1,
+  alpha_seasonal = 0.75,
+  alpha_seasonal_decay = 0.25,
+  n = 25L,
+  period_length = 7L
+)
+```
+
+```{r weights_threedx_plot, echo = FALSE, fig.height = 3}
+data.frame(
+  index = seq_len(25),
+  weight = threedx::weights_threedx(
+    alpha = 0.1,
+    alpha_seasonal = 0.75,
+    alpha_seasonal_decay = 0.25,
+    n = 25L,
+    period_length = 7L
+  )
+) |>
+  ggplot(aes(x = index, y = weight)) +
+  geom_col() +
+  labs(x = "Index", y = "Weight", 
+       title = "3-Dimensional Exponential Weights")
+```
+
+3DX weights are the product of three separate weight components.
+
+### Exponential Weights
+
+The simplest weight component is to assign exponentially decreasing weights. For a time series of daily observations with 25 observations, the weights could look like this:
+
+```{r weights_exponential}
+threedx::weights_exponential(alpha = 0.1, n = 25)
+```
+
+```{r weights_exponential_plot, echo = FALSE, fig.height = 3}
+data.frame(
+  index = seq_len(25),
+  weight = threedx::weights_exponential(alpha = 0.1, n = 25)
+) |>
+  ggplot(aes(x = index, y = weight)) +
+  geom_col() +
+  labs(x = "Index", y = "Weight", title = "Exponential Weights for alpha=0.1")
+```
+
+Exponential weights are great as they smoothly interpolate between a mean forecast for `alpha = 0` and a random walk or naive forecast for `alpha = 1`.
+
+But in many cases, we would like to model also a seasonal component of a time series. 3DX approaches this with two additional weight components.
+
+### Exponential Seasonal Weights
+
+The first assigns exponential weights *within* a seasonal period. Again, consider the time series of 25 daily observations. We suspect a weekly seasonality and set `period_length = 7` when deriving seasonal weights:
+
+```{r weights_seasonal}
+threedx::weights_seasonal(alpha_seasonal = 0.75, n = 25, period_length = 7)
+```
+
+Starting from the point to be predicted next (index 26), the largest weight is assigned to the index `period_length`-steps ago, index 19. The same weight is assigned every other `period_length`-steps before that. Within a period, weights decay symmetrically, with larger weights closer to the season that is being predicted. Thus the index that is one step before the index to be predicted will have the second highest weight.
+
+```{r weights_seasonal_plot, echo = FALSE, fig.height = 3}
+data.frame(
+  index = seq_len(25),
+  weight = threedx::weights_seasonal(
+    alpha_seasonal = 0.75,
+    n = 25,
+    period_length = 7
+  )
+) |>
+  ggplot(aes(x = index, y = weight)) +
+  geom_col() +
+  labs(x = "Index", y = "Weight", title = "Exponential Seasonal Weights for alpha=0.75")
+```
+
+### Seasonally-Decaying Exponential Weights
+
+The final component assigns exponential weights *across* the seasonal periods but constant weights within a period:
+
+```{r weights_seasonal_decay}
+threedx::weights_seasonal_decay(
+  alpha_seasonal_decay = 0.25,
+  n = 25,
+  period_length = 7
+)
+```
+
+Starting from the point to be predicted next (index 26), the largest weight is assigned to the index `period_length`-steps ago, index 19. The same weight is assigned every other `period_length`-steps before that. Within a period, weights decay symmetrically, with larger weights closer to the season that is being predicted. Thus the index that is one step before the index to be predicted will have the second highest weight.
+
+```{r weights_seasonal_decay_plot, echo = FALSE, fig.height = 3}
+data.frame(
+  index = seq_len(25),
+  weight = threedx::weights_seasonal_decay(
+    alpha_seasonal_decay = 0.25,
+    n = 25,
+    period_length = 7
+  )
+) |>
+  ggplot(aes(x = index, y = weight)) +
+  geom_col() +
+  labs(x = "Index", y = "Weight", title = "Seasonally-Decaying Exponential Weights for alpha=0.25")
 ```
 
 ## References

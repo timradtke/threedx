@@ -17,8 +17,8 @@
 #' 
 #' @return A numeric vector of `n` values between 0 and 1 that sum up to 1
 #' 
-#' @seealso [weights_seasonal_decay()], [weights_exponential()],
-#'   [weights_threedx()]
+#' @seealso [weights_exponential()], [weights_seasonal()],
+#'   [weights_seasonal_decay()]
 #' 
 #' @export
 #' @examples
