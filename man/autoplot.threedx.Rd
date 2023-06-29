@@ -4,7 +4,7 @@
 \alias{autoplot.threedx}
 \title{Autoplot method for \code{threedx} objects}
 \usage{
-autoplot.threedx(object, ..., date = NULL, show_params = TRUE)
+\method{autoplot}{threedx}(object, ..., date = NULL, show_params = TRUE)
 }
 \arguments{
 \item{object}{Fitted model object of class \code{threedx} returned by
