@@ -24,6 +24,42 @@
 #' @param ... Additional arguments passed to `innovation_function`
 #' 
 #' @export
+#' @examples
+#' set.seed(9284)
+#' y <- stats::rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi((5 + 1:55 )/ 6)))
+#' 
+#' model <- learn_weights(
+#'   y = y,
+#'   alphas_grid = list_sampled_alphas(
+#'     n_target = 1000L,
+#'     include_edge_cases = TRUE
+#'   ),
+#'   period_length = 12L,
+#'   loss_function = loss_mae
+#' )
+#' 
+#' forecast_observation_driven <- predict(
+#'   object = model,
+#'   horizon = 12L,
+#'   n_samples = 2500L,
+#'   observation_driven = TRUE
+#' )
+#' 
+#' if (require("ggplot2")) {
+#'   autoplot(forecast_observation_driven)
+#' }
+#' 
+#' forecast_latent <- predict(
+#'   object = model,
+#'   horizon = 12L,
+#'   n_samples = 2500L,
+#'   observation_driven = FALSE,
+#'   innovation_function = draw_bootstrap
+#' )
+#' 
+#' if (require("ggplot2")) {
+#'   autoplot(forecast_latent)
+#' }
 #' 
 predict.threedx <- function(object,
                             horizon,

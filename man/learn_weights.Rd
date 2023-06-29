@@ -35,3 +35,21 @@ A fitted model object of class \code{threedx}
 \description{
 Fit a 3DX model to a time series
 }
+\examples{
+set.seed(9284)
+y <- stats::rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi((5 + 1:55 )/ 6)))
+
+model <- learn_weights(
+  y = y,
+  alphas_grid = list_sampled_alphas(
+    n_target = 1000L,
+    include_edge_cases = TRUE
+  ),
+  period_length = 12L,
+  loss_function = loss_mae
+)
+
+if (require("ggplot2")) {
+  autoplot(model)
+}
+}
