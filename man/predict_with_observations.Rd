@@ -2,11 +2,11 @@
 % Please edit documentation in R/predict.R
 \name{predict_with_observations}
 \alias{predict_with_observations}
-\title{Generate sample paths using observations}
+\title{Generate sample paths using observed values}
 \usage{
-predict_with_observations(y_m, object, horizon, n_samples)
+predict_with_observations(y_m, object, horizon, n_samples, postprocess)
 }
 \description{
-Generate sample paths using observations
+Generate sample paths using observed values
 }
 \keyword{internal}
