@@ -10,6 +10,7 @@
   n_samples,
   observation_driven,
   innovation_function,
+  postprocess = identity,
   ...
 )
 }
@@ -38,6 +39,16 @@ The provided \code{innovation_function} must return a numeric vector of length
 \code{n} that contains i.i.d samples that can be used for any sample path and
 forecast horizon.
 This argument is ignored when \code{observation_driven=TRUE}.}
+
+\item{postprocess}{A function that is applied on a numeric matrix of
+drawn samples for a single step-ahead before the samples are used to
+update the state of the model, and before outliers are removed
+(if applicable). By default equal to \code{identity()}, but could also
+be something like \code{function(x) pmax(x, 0)} to enforce a lower bound of 0,
+or any other transformation of interest that returns a numeric matrix of
+same dimensions as those of the input.
+Note that this can cause arbitrary errors caused by the author of the
+function provided to \code{postprocess}.}
 
 \item{...}{Additional arguments passed to \code{innovation_function}}
 }
@@ -79,6 +90,19 @@ forecast_latent <- predict(
 
 if (require("ggplot2")) {
   autoplot(forecast_latent)
+}
+
+forecast_latent_with_postprocessing <- predict(
+  object = model,
+  horizon = 12L,
+  n_samples = 2500L,
+  observation_driven = FALSE,
+  innovation_function = draw_normal_with_zero_mean,
+  postprocess = function(x) round(pmax(x, 0))
+)
+
+if (require("ggplot2")) {
+  autoplot(forecast_latent_with_postprocessing)
 }
 
 }

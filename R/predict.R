@@ -21,6 +21,15 @@
 #'   `n` that contains i.i.d samples that can be used for any sample path and
 #'   forecast horizon.
 #'   This argument is ignored when `observation_driven=TRUE`.
+#' @param postprocess A function that is applied on a numeric matrix of
+#'   drawn samples for a single step-ahead before the samples are used to
+#'   update the state of the model, and before outliers are removed
+#'   (if applicable). By default equal to `identity()`, but could also
+#'   be something like `function(x) pmax(x, 0)` to enforce a lower bound of 0,
+#'   or any other transformation of interest that returns a numeric matrix of
+#'   same dimensions as those of the input.
+#'   Note that this can cause arbitrary errors caused by the author of the
+#'   function provided to `postprocess`.
 #' @param ... Additional arguments passed to `innovation_function`
 #' 
 #' @export
@@ -61,20 +70,28 @@
 #'   autoplot(forecast_latent)
 #' }
 #' 
+#' forecast_latent_with_postprocessing <- predict(
+#'   object = model,
+#'   horizon = 12L,
+#'   n_samples = 2500L,
+#'   observation_driven = FALSE,
+#'   innovation_function = draw_normal_with_zero_mean,
+#'   postprocess = function(x) round(pmax(x, 0))
+#' )
+#' 
+#' if (require("ggplot2")) {
+#'   autoplot(forecast_latent_with_postprocessing)
+#' }
+#' 
 predict.threedx <- function(object,
                             horizon,
                             n_samples,
                             observation_driven,
                             innovation_function,
+                            postprocess = identity,
                             ...) {
   
   checkmate::assert_class(x = object, classes = "threedx")
-  checkmate::assert_integerish(
-    x = horizon, lower = 1, len = 1, any.missing = FALSE
-  )
-  checkmate::assert_integerish(
-    x = n_samples, lower = 1, len = 1, any.missing = FALSE
-  )
   checkmate::assert_logical(
     x = observation_driven, len = 1, any.missing = FALSE
   )
@@ -91,7 +108,8 @@ predict.threedx <- function(object,
       y_m = y_m,
       object = object,
       horizon = horizon,
-      n_samples = n_samples
+      n_samples = n_samples,
+      postprocess = postprocess
     )
   } else {
     paths <- predict_with_state(
@@ -100,6 +118,7 @@ predict.threedx <- function(object,
       horizon = horizon,
       n_samples = n_samples,
       innovation_function = innovation_function,
+      postprocess = postprocess,
       ...
     )
   }
@@ -118,13 +137,23 @@ predict.threedx <- function(object,
   return(result)
 }
 
-#' Generate sample paths using observations
+#' Generate sample paths using observed values
 #' 
 #' @keywords internal
 predict_with_observations <- function(y_m,
                                       object,
                                       horizon,
-                                      n_samples) {
+                                      n_samples,
+                                      postprocess) {
+  
+  checkmate::assert_integerish(
+    x = horizon, lower = 1, len = 1, any.missing = FALSE
+  )
+  checkmate::assert_integerish(
+    x = n_samples, lower = 1, len = 1, any.missing = FALSE
+  )
+  checkmate::assert_function(x = postprocess, null.ok = FALSE, nargs = 1)
+  
   y_hat_m <- matrix(
     data = NA_real_,
     nrow = n_samples,
@@ -148,9 +177,11 @@ predict_with_observations <- function(y_m,
     tmp_y_m <- cbind(y_m, y_hat_m[, seq_len(idx-1), drop = FALSE])
     
     for (sample_idx in seq_len(n_samples)) {
-      y_hat_m[sample_idx, idx] <- tmp_y_m[
-        sample_idx, sample_indices[sample_idx]
-      ]
+      y_hat_m[sample_idx, idx] <- postprocess(
+        tmp_y_m[
+          sample_idx, sample_indices[sample_idx]
+        ]
+      )
     }
   }
   
@@ -165,8 +196,16 @@ predict_with_state <- function(y_m,
                                horizon,
                                n_samples,
                                innovation_function,
+                               postprocess,
                                ...) {
   
+  checkmate::assert_integerish(
+    x = horizon, lower = 1, len = 1, any.missing = FALSE
+  )
+  checkmate::assert_integerish(
+    x = n_samples, lower = 1, len = 1, any.missing = FALSE
+  )
+  checkmate::assert_function(x = postprocess, null.ok = FALSE, nargs = 1)
   checkmate::assert_function(
     x = innovation_function,
     args = c("n", "errors"),
@@ -194,18 +233,20 @@ predict_with_state <- function(y_m,
   )
   
   for (idx in seq_len(horizon)) {
-    y_hat_m[, idx] <- y_hat_m[, idx] +
-      cbind(y_m, y_hat_m[, seq_len(idx-1), drop = FALSE]) %*%
-      matrix(
-        data = weights_threedx(
-          alpha = object$alpha,
-          alpha_seasonal = object$alpha_seasonal,
-          alpha_seasonal_decay = object$alpha_seasonal_decay,
-          n = object$n + idx - 1,
-          period_length = object$period_length
-        ),
-        ncol = 1
-      )
+    y_hat_m[, idx] <- postprocess(
+      y_hat_m[, idx] +
+        cbind(y_m, y_hat_m[, seq_len(idx-1), drop = FALSE]) %*%
+        matrix(
+          data = weights_threedx(
+            alpha = object$alpha,
+            alpha_seasonal = object$alpha_seasonal,
+            alpha_seasonal_decay = object$alpha_seasonal_decay,
+            n = object$n + idx - 1,
+            period_length = object$period_length
+          ),
+          ncol = 1
+        )
+    )
   }
   
   return(y_hat_m)
