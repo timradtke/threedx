@@ -65,8 +65,9 @@ learn_weights <- function(y,
   n <- length(y)
   
   offset <- period_length
-  if (n <= offset) {
-    offset <- 1
+  # use early residuals while time series is short compared to period length
+  if (n <= 2 * offset) {
+    offset <- max(1, n - period_length)
   }
   
   step_ahead_predictions <- matrix(

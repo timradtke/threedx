@@ -201,8 +201,8 @@ expect_threedx <- function(model, y, period_length, alphas_grid) {
   n_params <- nrow(alphas_grid)
   
   n_initial_period <- period_length
-  if (n_obs <= period_length) {
-    n_initial_period <- 1
+  if (n_obs <= 2 * period_length) {
+    n_initial_period <- max(1, n_obs - period_length)
   }
   
   expect_numeric(x = model$fitted, all.missing = FALSE, len = n_obs)
