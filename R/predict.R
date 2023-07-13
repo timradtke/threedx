@@ -361,11 +361,17 @@ draw_normal_with_zero_mean <- function(n, errors, ...) {
 #' )
 draw_bootstrap_weighted <- function(n, errors, weight_function, ...) {
   checkmate::assert_integerish(x = n, lower = 1, any.missing = FALSE, len = 1)
-  checkmate::assert_numeric(x = errors, finite = TRUE, any.missing = FALSE)
+  checkmate::assert_numeric(
+    x = errors, finite = TRUE, any.missing = FALSE, min.len = 1
+  )
   checkmate::assert_function(
     x = weight_function,
     nargs = 1L
   )
+  
+  if (length(errors) == 1L) {
+    return(rep(errors, times = n))
+  }
   
   sample(x = errors, size = n, replace = TRUE, prob = weight_function(errors))
 }
@@ -398,6 +404,13 @@ draw_bootstrap_weighted <- function(n, errors, weight_function, ...) {
 #' 
 draw_bootstrap <- function(n, errors, ...) {
   checkmate::assert_integerish(x = n, lower = 1, any.missing = FALSE, len = 1)
-  checkmate::assert_numeric(x = errors, finite = TRUE, any.missing = FALSE)
+  checkmate::assert_numeric(
+    x = errors, finite = TRUE, any.missing = FALSE, min.len = 1
+  )
+  
+  if (length(errors) == 1L) {
+    return(rep(errors, times = n))
+  }
+  
   sample(x = errors, size = n, replace = TRUE, prob = NULL)
 }
