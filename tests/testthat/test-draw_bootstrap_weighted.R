@@ -18,6 +18,14 @@ test_that("generates same sequence as `sample()`", {
   expect_equal(innovations, expected)
 })
 
+test_that("generates sequence based solely on errors of length 1", {
+  # `sample(x = 28, size = 50, replace = TRUE)` would fail this test
+  expect_equal(
+    draw_bootstrap(n = 50, errors = 28, weight_function = weight_function),
+    rep(28, times = 50)
+  )
+})
+
 test_that("fails when any `error` is missing", {
   expect_error(
     draw_bootstrap_weighted(
@@ -74,6 +82,14 @@ test_that("fails when `n` is not integerish", {
 test_that("fails when `n` is less than 1", {
   expect_error(draw_bootstrap_weighted(
     n = 0L, errors = errors,
+    weight_function = weight_function
+  ))
+})
+
+test_that("fails when `errors` is of length less than 1", {
+  expect_error(draw_bootstrap_weighted(
+    n = n,
+    errors = numeric(),
     weight_function = weight_function
   ))
 })
