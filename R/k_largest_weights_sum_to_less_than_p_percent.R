@@ -89,5 +89,5 @@ k_largest_weights_sum_to_less_than_p_percent <- function(weights, k, p) {
   }
   
   # assumes the vector `weights` is a vector of probabilities summing up to 1
-  sum(head(sort(weights, decreasing = TRUE), k)) <= p
+  sum(utils::head(sort(weights, decreasing = TRUE), k)) <= p
 }
