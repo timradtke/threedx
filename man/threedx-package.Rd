@@ -12,6 +12,7 @@ Use 3DX to generate interpretable probabilistic forecasts by purely weighting va
 Useful links:
 \itemize{
   \item \url{https://github.com/timradtke/threedx}
+  \item \url{http://timradtke.github.io/threedx/}
   \item Report bugs at \url{https://github.com/timradtke/threedx/issues}
 }
 

@@ -11,8 +11,7 @@ coverage](https://codecov.io/gh/timradtke/threedx/branch/main/graph/badge.svg)](
 <!-- badges: end -->
 
 Use 3DX to generate interpretable probabilistic forecasts by purely
-weighting values from the observed time series—call it “attention” if
-you like!
+weighting values from the observed time series.
 
 What’s unique about 3DX is that it can be used to derive forecasts not
 only based on a “latent state” but also observation-driven, drawing
@@ -20,15 +19,15 @@ future realizations purely from observed values. This can be effective
 for count or intermittent series.
 
 3DX builds on ideas from the NPTS model described in [Alexandrov et
-al. (2019)](https://arxiv.org/abs/1906.05264). It’s sampling
-distribution is a combination of three components: The first weighs
-observations exponentially, the second weighs observations within each
-seasonal period exponentially, the third weighs the seasonal periods
-over time exponentially.
+al. (2019)](https://arxiv.org/abs/1906.05264). Its sampling distribution
+is a combination of three components: The first weighs observations
+exponentially, the second weighs observations within each seasonal
+period exponentially, the third weighs the seasonal periods over time
+exponentially.
 
 ## Installation
 
-You can install the development version of threedx from
+You can install the development version of `threedx` from
 [GitHub](https://github.com/timradtke/threedx) with:
 
 ``` r
@@ -36,7 +35,7 @@ You can install the development version of threedx from
 devtools::install_github("timradtke/threedx")
 ```
 
-Written in pure R, and with the `checkmate` package as the only direct
+Written in pure R, with the `checkmate` package as the only direct
 dependency, installing `threedx` is a breeze.
 
 ## Get Started

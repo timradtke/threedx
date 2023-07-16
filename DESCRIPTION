@@ -13,7 +13,8 @@ Description: Use 3DX to generate interpretable probabilistic forecasts by purely
     seasonal period exponentially, the third weighs the seasonal periods over
     time exponentially.
 License: MIT + file LICENSE
-URL: https://github.com/timradtke/threedx
+URL: https://github.com/timradtke/threedx,
+    http://timradtke.github.io/threedx/
 BugReports: https://github.com/timradtke/threedx/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -29,6 +30,7 @@ Suggests:
     microbenchmark,
     tictoc,
     testthat (>= 3.0.0),
-    covr
+    covr,
+    pkgdown
 Config/testthat/edition: 3
 VignetteBuilder: knitr

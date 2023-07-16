@@ -1,0 +1,33 @@
+url: http://timradtke.github.io/threedx/
+template:
+  bootstrap: 5
+reference:
+- title: "Fit Model and Forecast"
+  desc: "Core functions to fit a model and then forecast a time series."
+  contents:
+  - "learn_weights"
+  - "predict.threedx"
+- title: "Initialize Grid of Parameters"
+  desc: "Helper functions to construct a grid of `alpha` parameters to be evaluated during model fitting, or use your own."
+  contents:
+  - "list_sampled_alphas"
+  - "list_edge_alphas"
+- title: "Loss Functions"
+  desc: "Loss functions to be used during model fitting, or use your own."
+  contents:
+  - starts_with("loss_")
+- title: "Innovation Methods"
+  desc: "Methods of generating innovations to construct sample paths during prediction, or use your own."
+  contents:
+  - starts_with("draw_")
+- title: "Plot Model and Forecast"
+  desc: "Custom functions to plot the fitted model and the forecast using `ggplot2`."
+  contents:
+  - starts_with("autoplot")
+- title: "Generate Weights"
+  desc: "Generate the weights that are the fundamental component of `threedx` models."
+  contents:
+  - starts_with("weights_")
+- title: "Helper Functions"
+  contents:
+  - "k_largest_weights_sum_to_less_than_p_percent"
