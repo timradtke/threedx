@@ -1,3 +1,4 @@
+.Renviron
 .Rproj.user
 .Rhistory
 .RData
@@ -10,3 +11,4 @@ inst/doc
 /Meta/
 scratch.R
 TODO.md
+vignettes/articles/**/*.csv
