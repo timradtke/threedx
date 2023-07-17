@@ -21,7 +21,11 @@ test_that("generates same sequence as `sample()`", {
 test_that("generates sequence based solely on errors of length 1", {
   # `sample(x = 28, size = 50, replace = TRUE)` would fail this test
   expect_equal(
-    draw_bootstrap(n = 50, errors = 28, weight_function = weight_function),
+    draw_bootstrap_weighted(
+      n = 50,
+      errors = 28,
+      weight_function = weight_function
+    ),
     rep(28, times = 50)
   )
 })

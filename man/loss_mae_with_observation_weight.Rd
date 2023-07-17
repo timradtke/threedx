@@ -19,3 +19,8 @@ A scalar value
 \description{
 Observation-weighted mean-absolute error loss function
 }
+\references{
+Suman Ravuri et al. (2021).
+\emph{Skilful precipitation nowcasting using deep generative models of radar}.
+\url{https://www.nature.com/articles/s41586-021-03854-z}
+}

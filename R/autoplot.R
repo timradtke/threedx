@@ -153,7 +153,8 @@ plot_fitted <- function(object,
     ) +
     ggplot2::geom_point(
       ggplot2::aes(y = y_hat),
-      color = "black", fill = "white", size = 2, pch = 21
+      color = "black", fill = "white", size = 2, pch = 21,
+      na.rm = TRUE # remove missing fitted values silently
     ) +
     ggplot2::labs(
       x = "Date",

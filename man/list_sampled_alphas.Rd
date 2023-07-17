@@ -2,7 +2,7 @@
 % Please edit documentation in R/list_alphas.R
 \name{list_sampled_alphas}
 \alias{list_sampled_alphas}
-\title{Generate a list of possible alpha values that are evaluated during training}
+\title{Generate a data frame of possible alpha values to evaluate during training}
 \usage{
 list_sampled_alphas(
   n_target = 100,
@@ -102,24 +102,27 @@ seasonal naive forecast.}
 \code{.Random.seed} to its value before the function call upon exit.}
 }
 \value{
-A list of length-three numeric vectors
+A data frame with columns \code{alpha}, \code{alpha_seasonal}, and
+\code{alpha_seasonal_decay} and at most \code{n_target} rows; all values are between
+0 and 1
 }
 \description{
-Generate a list of possible alpha values that are evaluated during training
+Generate a data frame of possible alpha values to evaluate during training
 }
 \examples{
-alphas_grid <- list_sampled_alphas(n_target = 250L)
+alphas_grid <- list_sampled_alphas(n_target = 1000L)
 
-# ggplot2::ggplot(
-#   alphas_grid,
-#   ggplot2::aes(x = alpha, y = alpha_seasonal, fill = alpha_seasonal_decay)
-# ) +
-#   ggplot2::geom_point(pch = 21, color = "white") +
-#   ggplot2::scale_fill_gradient2(midpoint = 0.5) +
-#   ggplot2::labs(title = "Sampled Grid of Parameters to Evaluate")
+if (require("ggplot2")) {
+ggplot2::ggplot(
+  alphas_grid,
+  ggplot2::aes(x = alpha, y = alpha_seasonal, fill = alpha_seasonal_decay)
+) +
+  ggplot2::geom_point(pch = 21, color = "white") +
+  ggplot2::scale_fill_gradient2(midpoint = 0.5) +
+  ggplot2::labs(title = "Sampled Grid of Parameters to Evaluate")
+}
 
 }
 \seealso{
-\code{\link[=list_edge_alphas]{list_edge_alphas()}}, \code{\link[=alphas_list_to_data_frame]{alphas_list_to_data_frame()}},
-\code{\link[=learn_weights]{learn_weights()}}
+\code{\link[=list_edge_alphas]{list_edge_alphas()}}, \code{\link[=learn_weights]{learn_weights()}}
 }
