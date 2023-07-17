@@ -7,30 +7,59 @@
 learn_weights(y, period_length, alphas_grid, loss_function)
 }
 \arguments{
-\item{y}{The time series to be forecasted}
+\item{y}{The time series to be forecasted as numeric vector (not as \code{ts()}
+object)}
 
-\item{period_length}{The presumed length of a seasonal period for \code{y}}
+\item{period_length}{The presumed length of \code{y}'s seasonal period}
 
 \item{alphas_grid}{A data frame of possible parameter combinations to
 generate the weights of the final model. The optimal parameter set will be
 chosen based on the minimization of \code{loss_function}. The expected columns
 are numeric and called \code{alpha}, \code{alpha_seasonal}, \code{alpha_seasonal_decay}.
-At least one row must be provided.
+At least one row must be provided. All values must be between 0 and 1.
 This list can be generated via \code{\link[=list_sampled_alphas]{list_sampled_alphas()}} or
-\code{\link[=list_edge_alphas]{list_edge_alphas()}}, for example.}
+\code{\link[=list_edge_alphas]{list_edge_alphas()}}, for example, but you can generate it in any way you
+like.}
 
 \item{loss_function}{A function with first argument \code{y_hat} and optionally
-more arguments. Usually, to compute a loss, at least \code{y} is required to
-compute errors. Must be able to handle additional parameters via \code{...} to
-allow for potential future changes in the set of arguments passed to
-\code{loss_function} by \code{\link[=learn_weights]{learn_weights()}}. For examples, see \code{\link[=loss_mae]{loss_mae()}} or
-\code{\link[=loss_mae_with_observation_weight]{loss_mae_with_observation_weight()}}.
-The arguments \code{y_hat} and \code{y} passed by \code{\link[=learn_weights]{learn_weights()}} are numeric
-vectors of equal length.
+more arguments. Usually, to compute a loss, at least an additional \code{y}
+argument is required---to compute errors. Must be able to handle additional
+parameters via \code{...} to allow for potential future changes in the set of
+arguments passed to \code{loss_function} by \code{\link[=learn_weights]{learn_weights()}}.
+For examples, see \code{\link[=loss_mae]{loss_mae()}} or \code{\link[=loss_mae_with_observation_weight]{loss_mae_with_observation_weight()}}.
+It can be assumed that the arguments \code{y_hat} and \code{y} passed by
+\code{\link[=learn_weights]{learn_weights()}} are numeric vectors of equal length.
 The provided \code{loss_function} must return a numeric scalar value.}
 }
 \value{
-A fitted model object of class \code{threedx}
+A fitted model object of class \code{threedx}, which is a list of:
+\itemize{
+\item A numeric vector \code{weights} of the same length as the input \code{y}, assigning
+a weight to each index of the past observations. The weights sum to 1.
+These weights are the fitted weights used to produce forecasts.
+\item A numeric scalar \code{alpha}, the optimal paramater for the exponential
+smoothing component chosen during model training
+\item A numeric scalar \code{alpha_seasonal}, the optimal paramater for the
+seasonal exponential smoothing component chosen during model training
+\item A numeric scalar \code{alpha_seasonal_decay}, the optimal paramater for the
+seasonal exponential decay smoothing component chosen during model training
+\item A numeric vector \code{fitted} containing fitted values for each index of \code{y};
+the up to \code{period_length}-first observations may be missing.
+\item A numeric vector \code{residuals} containing the residuals for the training data
+as computed by \code{y - fitted}, thus the up to \code{period_length}-first
+observations may be missing.
+\item A numeric vector \code{y}, the input \code{y}
+\item A scalar \code{n}, the number of observations provided via \code{y}
+\item A scalar \code{period_length}, the input \code{period_length}
+\item A function \code{loss_function}, the provided \code{loss_function}
+\item A scalar \code{loss}, the value computed by the provided \code{loss_function} based
+on the input \code{y} and the fitted values (ignoring the initial missing
+values) for the loss minimizing set of parameters reported in \code{alpha},
+\code{alpha_seasonal}, \code{alpha_seasonal_decay}
+\item A list \code{full} containing intermediate results observed during model
+optimization for all other parameter combinations provided via
+\code{alphas_grid}
+}
 }
 \description{
 Fit a 3DX model to a time series
@@ -52,4 +81,8 @@ model <- learn_weights(
 if (require("ggplot2")) {
   autoplot(model)
 }
+
+}
+\seealso{
+\code{\link[=predict.threedx]{predict.threedx()}}, \code{\link[=list_sampled_alphas]{list_sampled_alphas()}}, \code{\link[=loss_mae]{loss_mae()}}
 }

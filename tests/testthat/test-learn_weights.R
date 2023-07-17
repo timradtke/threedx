@@ -389,7 +389,18 @@ test_that("returns expected `threedx` object for even and odd time series length
   )
 })
 
-test_that("fails when time series has missing observations", {
+test_that("fails when `y` is provided as time series object", {
+  expect_error(
+    learn_weights(
+      y = stats::ts(rnorm(100), frequency = 12),
+      period_length = 12L,
+      alphas_grid = alphas_grid_sampled,
+      loss_function = loss_mae
+    )
+  )
+})
+
+test_that("fails when `y` has missing observations", {
   period_length <- 12L
   n_obs <- 50L
   
@@ -441,7 +452,7 @@ test_that("fails when time series has missing observations", {
   )
 })
 
-test_that("fails when time series is shorter than two observations", {
+test_that("fails when `y` is shorter than two observations", {
   expect_error(
     learn_weights(
       y = 1,

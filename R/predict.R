@@ -1,6 +1,26 @@
 
 #' Draw forecast sample paths from a fitted 3DX model
 #' 
+#' @details While `observation_driven` can be effective at forecasting wide
+#'   ranges of time series, the induced forecast distribution collapses to a
+#'   single point as `alpha`, `alpha_seasonal`, and `alpha_seasonal_decay`
+#'   values tend towards 1. While the corresponding point prediction may still
+#'   be optimal, the uncertainty in the forecast is likely underestimated.
+#'   
+#'   For example, if `alpha = 0.98`, `alpha_seasonal=0`, and
+#'   `alpha_seasonal_decay=0`, the resulting forecast distribution assigns 98%
+#'   probability to the most recent observation, thus collapsing most prediction
+#'   intervals onto that point. This can be highly unrealistic for time series
+#'   whose level is changing rapidly and therefore require large `alpha` values.
+#'   
+#'   To circumvent this issue, one can design certain conditions under
+#'   which `observation_driven` is set to `TRUE`. For example, using
+#'   [k_largest_weights_sum_to_less_than_p_percent()], one can check that the
+#'   learned model assigns weight to at least a few observations, and only then
+#'   set `observation_driven=TRUE`. However, if the underlying time series is
+#'   truly a random walk, `observation_driven=TRUE` will always be a poor choice
+#'   as it limits the range of possible future values too much.
+#' 
 #' @param object A fitted model object of class `threedx`
 #' @param horizon An integer defining the forecast horizon
 #' @param n_samples An integer defining the number of sample paths to draw
@@ -31,6 +51,22 @@
 #'   Note that this can cause arbitrary errors caused by the author of the
 #'   function provided to `postprocess`.
 #' @param ... Additional arguments passed to `innovation_function`
+#' 
+#' @return 
+#' A forecast object of class `threedx_paths`, which is a list of:
+#' * A `paths` numeric matrix of dimensions `n_samples`-times-`horizon`. The
+#'   matrix stores the forecast sample paths that are the probabilistic forecast
+#'   returned by the `threedx` model. Aggregate across the first dimension to
+#'   derive expectations of the forecast distribution, aggregate across the
+#'   second dimension to derive sums over the forecast horizon.
+#' * The input `horizon` argument
+#' * The input `n_samples` argument
+#' * The input `observation_driven` argument
+#' * The model `model` provided via `object`, an object of class `threedx`
+#' 
+#' @seealso [learn_weights()], [k_largest_weights_sum_to_less_than_p_percent()],
+#'   [loss_mae()], [loss_rmse()], [draw_normal_with_zero_mean()],
+#'   [draw_bootstrap()]
 #' 
 #' @export
 #' @examples
@@ -250,167 +286,4 @@ predict_with_state <- function(y_m,
   }
   
   return(y_hat_m)
-}
-
-#' Draw i.i.d. innovations from a Normal distribution with non-zero mean
-#' 
-#' @param n The number of innovations to draw
-#' @param errors The residual errors that are used to define the distribution
-#'   from which the innovations are drawn
-#' @param ... Additional arguments passed from [predict.threedx()], ignored
-#' 
-#' @return A vector of same type as `errors` and of length `n`
-#' @export
-#' 
-#' @examples
-#' model <- learn_weights(
-#'   y = 1:50,
-#'   period_length = 12L,
-#'   alphas_grid = list_sampled_alphas(n_target = 25),
-#'   loss_function = loss_mae
-#' )
-#' 
-#' forecast <- predict(
-#'   object = model,
-#'   horizon = 12L,
-#'   n_samples = 1000L,
-#'   observation_driven = FALSE,
-#'   innovation_function = draw_normal_with_drift,
-#' )
-draw_normal_with_drift <- function(n, errors, ...) {
-  checkmate::assert_integerish(x = n, lower = 1, any.missing = FALSE, len = 1)
-  checkmate::assert_numeric(x = errors, finite = TRUE, any.missing = FALSE)
-  
-  suppressWarnings(
-    stats::rnorm(
-      n = n,
-      mean = mean(errors),
-      sd = stats::sd(errors)
-    )
-  )
-}
-
-#' Draw i.i.d. innovations from a Normal distribution with zero mean
-#' 
-#' @param n The number of innovations to draw
-#' @param errors The residual errors that are used to define the distribution
-#'   from which the innovations are drawn
-#' @param ... Additional arguments passed from [predict.threedx()], ignored
-#' 
-#' @return A vector of same type as `errors` and of length `n`
-#' @export
-#' 
-#' @examples
-#' model <- learn_weights(
-#'   y = 1:50,
-#'   period_length = 12L,
-#'   alphas_grid = list_sampled_alphas(n_target = 25),
-#'   loss_function = loss_mae
-#' )
-#' 
-#' forecast <- predict(
-#'   object = model,
-#'   horizon = 12L,
-#'   n_samples = 1000L,
-#'   observation_driven = FALSE,
-#'   innovation_function = draw_normal_with_zero_mean,
-#' )
-draw_normal_with_zero_mean <- function(n, errors, ...) {
-  checkmate::assert_integerish(x = n, lower = 1, any.missing = FALSE, len = 1)
-  checkmate::assert_numeric(x = errors, finite = TRUE, any.missing = FALSE)
-  
-  suppressWarnings(
-    stats::rnorm(
-      n = n,
-      mean = 0,
-      sd = stats::sd(errors)
-    )
-  )
-}
-
-#' Draw innovations by bootstrapping from weighted residual errors
-#' 
-#' @param n The number of innovations to draw
-#' @param errors The residual errors that are used to define the distribution
-#'   from which the innovations are drawn
-#' @param weight_function A function that takes `errors` as sole argument and
-#'   must return a numeric vector of same length as `errors` to be used as
-#'   `prob` argument by the underlying `sample()` call
-#' @param ... Additional arguments passed from [predict.threedx()], ignored
-#' 
-#' @return A vector of same type as `errors` and of length `n`
-#' @export
-#' 
-#' @examples
-#' model <- learn_weights(
-#'   y = rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6))),
-#'   period_length = 12L,
-#'   alphas_grid = list_sampled_alphas(n_target = 25),
-#'   loss_function = loss_mae
-#' )
-#' 
-#' forecast <- predict(
-#'   object = model,
-#'   horizon = 12L,
-#'   n_samples = 1000L,
-#'   observation_driven = FALSE,
-#'   innovation_function = draw_bootstrap_weighted,
-#'   weight_function = function(x) {
-#'     weights_exponential(alpha = model$alpha, n = length(x))
-#'   }
-#' )
-draw_bootstrap_weighted <- function(n, errors, weight_function, ...) {
-  checkmate::assert_integerish(x = n, lower = 1, any.missing = FALSE, len = 1)
-  checkmate::assert_numeric(
-    x = errors, finite = TRUE, any.missing = FALSE, min.len = 1
-  )
-  checkmate::assert_function(
-    x = weight_function,
-    nargs = 1L
-  )
-  
-  if (length(errors) == 1L) {
-    return(rep(errors, times = n))
-  }
-  
-  sample(x = errors, size = n, replace = TRUE, prob = weight_function(errors))
-}
-
-#' Draw innovations by bootstrapping from unweighted residual errors
-#' 
-#' @param n The number of innovations to draw
-#' @param errors The residual errors that are used to define the distribution
-#'   from which the innovations are drawn
-#' @param ... Additional arguments passed from [predict.threedx()], ignored
-#' 
-#' @return A vector of same type as `errors` and of length `n`
-#' @export
-#' 
-#' @examples
-#' model <- learn_weights(
-#'   y = rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi(1:55 / 6))),
-#'   period_length = 12L,
-#'   alphas_grid = list_sampled_alphas(n_target = 25),
-#'   loss_function = loss_mae
-#' )
-#' 
-#' forecast <- predict(
-#'   object = model,
-#'   horizon = 12L,
-#'   n_samples = 1000L,
-#'   observation_driven = FALSE,
-#'   innovation_function = draw_bootstrap
-#' )
-#' 
-draw_bootstrap <- function(n, errors, ...) {
-  checkmate::assert_integerish(x = n, lower = 1, any.missing = FALSE, len = 1)
-  checkmate::assert_numeric(
-    x = errors, finite = TRUE, any.missing = FALSE, min.len = 1
-  )
-  
-  if (length(errors) == 1L) {
-    return(rep(errors, times = n))
-  }
-  
-  sample(x = errors, size = n, replace = TRUE, prob = NULL)
 }

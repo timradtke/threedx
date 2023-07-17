@@ -1,32 +1,61 @@
 
 #' Fit a 3DX model to a time series
 #' 
-#' @param y The time series to be forecasted
-#' @param period_length The presumed length of a seasonal period for `y`
+#' @param y The time series to be forecasted as numeric vector (not as `ts()`
+#'   object)
+#' @param period_length The presumed length of `y`'s seasonal period
 #' @param alphas_grid A data frame of possible parameter combinations to
 #'   generate the weights of the final model. The optimal parameter set will be
 #'   chosen based on the minimization of `loss_function`. The expected columns
 #'   are numeric and called `alpha`, `alpha_seasonal`, `alpha_seasonal_decay`.
-#'   At least one row must be provided.
+#'   At least one row must be provided. All values must be between 0 and 1.
 #'   This list can be generated via [list_sampled_alphas()] or
-#'   [list_edge_alphas()], for example.
+#'   [list_edge_alphas()], for example, but you can generate it in any way you
+#'   like.
 #' @param loss_function A function with first argument `y_hat` and optionally
-#'   more arguments. Usually, to compute a loss, at least `y` is required to
-#'   compute errors. Must be able to handle additional parameters via `...` to
-#'   allow for potential future changes in the set of arguments passed to
-#'   `loss_function` by [learn_weights()]. For examples, see [loss_mae()] or
-#'   [loss_mae_with_observation_weight()].
-#'   The arguments `y_hat` and `y` passed by [learn_weights()] are numeric
-#'   vectors of equal length.
+#'   more arguments. Usually, to compute a loss, at least an additional `y`
+#'   argument is required---to compute errors. Must be able to handle additional
+#'   parameters via `...` to allow for potential future changes in the set of
+#'   arguments passed to `loss_function` by [learn_weights()].
+#'   For examples, see [loss_mae()] or [loss_mae_with_observation_weight()].
+#'   It can be assumed that the arguments `y_hat` and `y` passed by
+#'   [learn_weights()] are numeric vectors of equal length.
 #'   The provided `loss_function` must return a numeric scalar value.
 #' 
-#' @return A fitted model object of class `threedx`
+#' @return A fitted model object of class `threedx`, which is a list of:
+#' * A numeric vector `weights` of the same length as the input `y`, assigning
+#'   a weight to each index of the past observations. The weights sum to 1.
+#'   These weights are the fitted weights used to produce forecasts.
+#' * A numeric scalar `alpha`, the optimal paramater for the exponential
+#'   smoothing component chosen during model training
+#' * A numeric scalar `alpha_seasonal`, the optimal paramater for the
+#'   seasonal exponential smoothing component chosen during model training
+#' * A numeric scalar `alpha_seasonal_decay`, the optimal paramater for the
+#'   seasonal exponential decay smoothing component chosen during model training
+#' * A numeric vector `fitted` containing fitted values for each index of `y`;
+#'   the up to `period_length`-first observations may be missing.
+#' * A numeric vector `residuals` containing the residuals for the training data
+#'   as computed by `y - fitted`, thus the up to `period_length`-first
+#'   observations may be missing.
+#' * A numeric vector `y`, the input `y`
+#' * A scalar `n`, the number of observations provided via `y`
+#' * A scalar `period_length`, the input `period_length`
+#' * A function `loss_function`, the provided `loss_function`
+#' * A scalar `loss`, the value computed by the provided `loss_function` based
+#'   on the input `y` and the fitted values (ignoring the initial missing
+#'   values) for the loss minimizing set of parameters reported in `alpha`,
+#'   `alpha_seasonal`, `alpha_seasonal_decay`
+#' * A list `full` containing intermediate results observed during model
+#'   optimization for all other parameter combinations provided via
+#'   `alphas_grid`
+#' 
+#' @seealso [predict.threedx()], [list_sampled_alphas()], [loss_mae()]
 #' 
 #' @export
 #' @examples
 #' set.seed(9284)
 #' y <- stats::rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi((5 + 1:55 )/ 6)))
-#' 
+#'
 #' model <- learn_weights(
 #'   y = y,
 #'   alphas_grid = list_sampled_alphas(
@@ -36,10 +65,11 @@
 #'   period_length = 12L,
 #'   loss_function = loss_mae
 #' )
-#' 
+#'
 #' if (require("ggplot2")) {
 #'   autoplot(model)
 #' }
+#'
 learn_weights <- function(y,
                           period_length,
                           alphas_grid,
@@ -48,6 +78,11 @@ learn_weights <- function(y,
   checkmate::assert_numeric(
     x = y, any.missing = FALSE, min.len = 2
   )
+  
+  if (stats::is.ts(y)) {
+    stop("Please provide `y` not as time series but as a generic numeric vector.")
+  }
+  
   checkmate::assert_integerish(
     x = period_length, lower = 3, len = 1, any.missing = FALSE
   )

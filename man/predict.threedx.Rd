@@ -52,8 +52,43 @@ function provided to \code{postprocess}.}
 
 \item{...}{Additional arguments passed to \code{innovation_function}}
 }
+\value{
+A forecast object of class \code{threedx_paths}, which is a list of:
+\itemize{
+\item A \code{paths} numeric matrix of dimensions \code{n_samples}-times-\code{horizon}. The
+matrix stores the forecast sample paths that are the probabilistic forecast
+returned by the \code{threedx} model. Aggregate across the first dimension to
+derive expectations of the forecast distribution, aggregate across the
+second dimension to derive sums over the forecast horizon.
+\item The input \code{horizon} argument
+\item The input \code{n_samples} argument
+\item The input \code{observation_driven} argument
+\item The model \code{model} provided via \code{object}, an object of class \code{threedx}
+}
+}
 \description{
 Draw forecast sample paths from a fitted 3DX model
+}
+\details{
+While \code{observation_driven} can be effective at forecasting wide
+ranges of time series, the induced forecast distribution collapses to a
+single point as \code{alpha}, \code{alpha_seasonal}, and \code{alpha_seasonal_decay}
+values tend towards 1. While the corresponding point prediction may still
+be optimal, the uncertainty in the forecast is likely underestimated.
+
+For example, if \code{alpha = 0.98}, \code{alpha_seasonal=0}, and
+\code{alpha_seasonal_decay=0}, the resulting forecast distribution assigns 98\%
+probability to the most recent observation, thus collapsing most prediction
+intervals onto that point. This can be highly unrealistic for time series
+whose level is changing rapidly and therefore require large \code{alpha} values.
+
+To circumvent this issue, one can design certain conditions under
+which \code{observation_driven} is set to \code{TRUE}. For example, using
+\code{\link[=k_largest_weights_sum_to_less_than_p_percent]{k_largest_weights_sum_to_less_than_p_percent()}}, one can check that the
+learned model assigns weight to at least a few observations, and only then
+set \code{observation_driven=TRUE}. However, if the underlying time series is
+truly a random walk, \code{observation_driven=TRUE} will always be a poor choice
+as it limits the range of possible future values too much.
 }
 \examples{
 set.seed(9284)
@@ -105,4 +140,9 @@ if (require("ggplot2")) {
   autoplot(forecast_latent_with_postprocessing)
 }
 
+}
+\seealso{
+\code{\link[=learn_weights]{learn_weights()}}, \code{\link[=k_largest_weights_sum_to_less_than_p_percent]{k_largest_weights_sum_to_less_than_p_percent()}},
+\code{\link[=loss_mae]{loss_mae()}}, \code{\link[=loss_rmse]{loss_rmse()}}, \code{\link[=draw_normal_with_zero_mean]{draw_normal_with_zero_mean()}},
+\code{\link[=draw_bootstrap]{draw_bootstrap()}}
 }
