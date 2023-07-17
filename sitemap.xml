@@ -40,6 +40,9 @@
     <loc>http://timradtke.github.io/threedx/reference/draw_bootstrap_weighted.html</loc>
   </url>
   <url>
+    <loc>http://timradtke.github.io/threedx/reference/draw_bootstrap_zero_mean.html</loc>
+  </url>
+  <url>
     <loc>http://timradtke.github.io/threedx/reference/draw_normal_with_drift.html</loc>
   </url>
   <url>
@@ -64,10 +67,16 @@
     <loc>http://timradtke.github.io/threedx/reference/loss_mae.html</loc>
   </url>
   <url>
+    <loc>http://timradtke.github.io/threedx/reference/loss_mae_ignoring_bias.html</loc>
+  </url>
+  <url>
     <loc>http://timradtke.github.io/threedx/reference/loss_mae_with_observation_weight.html</loc>
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/reference/loss_rmse.html</loc>
+  </url>
+  <url>
+    <loc>http://timradtke.github.io/threedx/reference/loss_rmse_ignoring_bias.html</loc>
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/reference/plot_fitted.html</loc>

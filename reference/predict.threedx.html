@@ -122,6 +122,46 @@ function provided to <code>postprocess</code>.</p></dd>
 <dd><p>Additional arguments passed to <code>innovation_function</code></p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    
+
+<p>A forecast object of class <code>threedx_paths</code>, which is a list of:</p><ul><li><p>A <code>paths</code> numeric matrix of dimensions <code>n_samples</code>-times-<code>horizon</code>. The
+matrix stores the forecast sample paths that are the probabilistic forecast
+returned by the <code>threedx</code> model. Aggregate across the first dimension to
+derive expectations of the forecast distribution, aggregate across the
+second dimension to derive sums over the forecast horizon.</p></li>
+<li><p>The input <code>horizon</code> argument</p></li>
+<li><p>The input <code>n_samples</code> argument</p></li>
+<li><p>The input <code>observation_driven</code> argument</p></li>
+<li><p>The model <code>model</code> provided via <code>object</code>, an object of class <code>threedx</code></p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>While <code>observation_driven</code> can be effective at forecasting wide
+ranges of time series, the induced forecast distribution collapses to a
+single point as <code>alpha</code>, <code>alpha_seasonal</code>, and <code>alpha_seasonal_decay</code>
+values tend towards 1. While the corresponding point prediction may still
+be optimal, the uncertainty in the forecast is likely underestimated.</p>
+<p>For example, if <code>alpha = 0.98</code>, <code>alpha_seasonal=0</code>, and
+<code>alpha_seasonal_decay=0</code>, the resulting forecast distribution assigns 98%
+probability to the most recent observation, thus collapsing most prediction
+intervals onto that point. This can be highly unrealistic for time series
+whose level is changing rapidly and therefore require large <code>alpha</code> values.</p>
+<p>To circumvent this issue, one can design certain conditions under
+which <code>observation_driven</code> is set to <code>TRUE</code>. For example, using
+<code><a href="k_largest_weights_sum_to_less_than_p_percent.html">k_largest_weights_sum_to_less_than_p_percent()</a></code>, one can check that the
+learned model assigns weight to at least a few observations, and only then
+set <code>observation_driven=TRUE</code>. However, if the underlying time series is
+truly a random walk, <code>observation_driven=TRUE</code> will always be a poor choice
+as it limits the range of possible future values too much.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="learn_weights.html">learn_weights()</a></code>, <code><a href="k_largest_weights_sum_to_less_than_p_percent.html">k_largest_weights_sum_to_less_than_p_percent()</a></code>,
+<code><a href="loss_mae.html">loss_mae()</a></code>, <code><a href="loss_rmse.html">loss_rmse()</a></code>, <code><a href="draw_normal_with_zero_mean.html">draw_normal_with_zero_mean()</a></code>,
+<code><a href="draw_bootstrap.html">draw_bootstrap()</a></code></p></div>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>

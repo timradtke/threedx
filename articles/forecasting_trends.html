@@ -74,7 +74,7 @@
       <img src="" class="logo" alt=""><h1>Forecasting Trends with `threedx`</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/timradtke/threedx/blob/HEAD/vignettes/forecasting_trends.Rmd" class="external-link"><code>vignettes/forecasting_trends.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/timradtke/threedx/blob/HEAD/vignettes/articles/forecasting_trends.Rmd" class="external-link"><code>vignettes/articles/forecasting_trends.Rmd</code></a></small>
       <div class="d-none name"><code>forecasting_trends.Rmd</code></div>
     </div>
 
@@ -250,7 +250,7 @@ bias:</p>
 <span>  <span class="va">residuals_zero_bias</span> <span class="op">&lt;-</span> <span class="va">residuals</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">residuals</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="va">residuals_zero_bias</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Using <code>loss_mae_ignoring_bias()</code> instead of
+<p>Using <code><a href="../reference/loss_mae_ignoring_bias.html">loss_mae_ignoring_bias()</a></code> instead of
 <code><a href="../reference/loss_mae.html">loss_mae()</a></code>, the model that perfectly removes the seasonal
 error is chosen as the trend bias is ignored during training. During
 prediction, the bias is compensated by the innovations with drift.</p>
