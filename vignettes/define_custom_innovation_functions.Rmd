@@ -1,0 +1,77 @@
+---
+title: "Define Custom Innovation Functions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Define Custom Innovation Functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+set.seed(857)
+library(threedx)
+```
+
+Like [Innovations-State-Space Models (ISSM)](https://otexts.com/fpp3/ets.html), a `threedx` model requires an innovation-generating process to produce forecast distributions. That is, we need to define some process that generates values by which we can perturb the point forecasts in order to represent the uncertainty in our predictions.
+
+For many types of forecast models, and likewise for `threedx`, the main way to specify such process is as a function of the one-step-ahead residuals from the model training.
+
+After fitting a model, ...
+
+```{r}
+model <- learn_weights(
+  y = rnorm(50, mean = 100, sd = 20),
+  period_length = 12L,
+  alphas_grid = list_edge_alphas(),
+  loss_function = loss_rmse
+)
+```
+
+... residuals can be accessed from the fitted model object:
+
+```{r}
+round(model$residuals, 1)
+```
+
+Since residuals summarize the error the model made on the training set, it is the best information we have to inform the errors it is likely to make on the test set (but overfitting!).
+
+With the residuals in hand, we have everything to generate some future errors or innovations that will drive the forecast sample paths.
+
+A common innovation function would be the one that draws innovations from a Normal distribution with a mean of zero and with the empirical standard deviation of the residuals as standard deviation, which comes with `threedx`:
+
+```{r}
+print(draw_normal_with_zero_mean)
+```
+
+Every innovation function requires at least two function arguments that are passed by `predict.threedx()`: The number `n` of independent samples to draw, and the numeric vector of (non-missing) residuals `errors` of length greater than zero. Note that `n` has nothing in common with the length of `errors`. 
+
+Instead, the provided `n` is equal to the forecast `horizon` times the number of sample paths `n_samples` to be generated. The innovation function is used to draw an innovation for each future time step for each sample path.
+
+Consequently, the expected output is a numeric vector of length `n` of non-missing, independent samples.
+
+## Independence of Innovations
+
+In `predict.threedx()`, the *independently* drawn innovations are used to construct sample paths iteratively.
+
+The first `n_samples` innovations are added on top of the point prediction for horizon one. The resulting `n_samples` potential future observations are then combined with the past observations and weighted by the model weights to generate the point prediction for horizon two.
+
+Next, the second batch of `n_samples` innovations are added to the point prediction for horizon two, and the process repeats.
+
+Because of this iterative behavior, each sample path will exhibit autocorrelation depending on the fitted model---despite the original innovations being independent samples. At the same time, the different sample paths are independent of each other.
+
+## A Bit of Inspiration
+
+Because the residuals are provided, one can use them to draw a non-parametric bootstrap:
+
+```{r}
+print(draw_bootstrap)
+```
+
+And since the errors are provided in chronological order, you can use their index for arbitrary things: You could sample based on the errors of the most recent period only, or assign weights to the residuals before sampling, as done in `draw_bootstrap_weighted()`.
