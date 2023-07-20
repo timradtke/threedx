@@ -19,7 +19,7 @@ loss_mae_with_observation_weight <- function(y_hat, y, ...) {
   ))
 }
 
-#' Mean-absolute error loss function
+#' Mean absolute error loss function
 #' 
 #' @param y_hat A numeric vector representing predictions
 #' @param y A numeric vector representing observations
@@ -32,7 +32,7 @@ loss_mae <- function(y_hat, y, ...) {
   mean(abs(y - y_hat))
 }
 
-#' Mean-absolute error loss function ignoring bias
+#' Mean absolute error loss function ignoring bias
 #' 
 #' Subtracts the median from the observed residuals before computing their
 #' mean absolute error. This can be helpful when predicting time series
@@ -55,7 +55,7 @@ loss_mae_ignoring_bias <- function(y_hat, y, ...) {
   mean(abs(residuals_debiased))
 }
 
-#' Root mean-squared error loss function
+#' Root-mean-square error loss function
 #' 
 #' @param y_hat A numeric vector representing predictions
 #' @param y A numeric vector representing observations
@@ -68,10 +68,10 @@ loss_rmse <- function(y_hat, y, ...) {
   sqrt(mean((y - y_hat)^2))
 }
 
-#' Root mean squared error loss function ignoring bias
+#' Root-mean-square error loss function ignoring bias
 #' 
 #' Subtracts the mean from the observed residuals before computing their
-#' root mean squared error. This can be helpful when predicting time series
+#' root-mean-square error. This can be helpful when predicting time series
 #' where a bias due to a trend component is expected and can be captured
 #' by the innovation function choice.
 #' 

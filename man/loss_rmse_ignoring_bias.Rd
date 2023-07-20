@@ -2,7 +2,7 @@
 % Please edit documentation in R/loss_functions.R
 \name{loss_rmse_ignoring_bias}
 \alias{loss_rmse_ignoring_bias}
-\title{Root mean squared error loss function ignoring bias}
+\title{Root-mean-square error loss function ignoring bias}
 \usage{
 loss_rmse_ignoring_bias(y_hat, y, ...)
 }
@@ -18,7 +18,7 @@ A scalar value
 }
 \description{
 Subtracts the mean from the observed residuals before computing their
-root mean squared error. This can be helpful when predicting time series
+root-mean-square error. This can be helpful when predicting time series
 where a bias due to a trend component is expected and can be captured
 by the innovation function choice.
 }

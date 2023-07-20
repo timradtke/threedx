@@ -2,7 +2,7 @@
 % Please edit documentation in R/loss_functions.R
 \name{loss_rmse}
 \alias{loss_rmse}
-\title{Root mean-squared error loss function}
+\title{Root-mean-square error loss function}
 \usage{
 loss_rmse(y_hat, y, ...)
 }
@@ -17,5 +17,5 @@ loss_rmse(y_hat, y, ...)
 A scalar value
 }
 \description{
-Root mean-squared error loss function
+Root-mean-square error loss function
 }

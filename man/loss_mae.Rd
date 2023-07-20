@@ -2,7 +2,7 @@
 % Please edit documentation in R/loss_functions.R
 \name{loss_mae}
 \alias{loss_mae}
-\title{Mean-absolute error loss function}
+\title{Mean absolute error loss function}
 \usage{
 loss_mae(y_hat, y, ...)
 }
@@ -17,5 +17,5 @@ loss_mae(y_hat, y, ...)
 A scalar value
 }
 \description{
-Mean-absolute error loss function
+Mean absolute error loss function
 }

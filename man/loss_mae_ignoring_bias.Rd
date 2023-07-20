@@ -2,7 +2,7 @@
 % Please edit documentation in R/loss_functions.R
 \name{loss_mae_ignoring_bias}
 \alias{loss_mae_ignoring_bias}
-\title{Mean-absolute error loss function ignoring bias}
+\title{Mean absolute error loss function ignoring bias}
 \usage{
 loss_mae_ignoring_bias(y_hat, y, ...)
 }
