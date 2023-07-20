@@ -177,10 +177,13 @@ alphas_grid <- data.frame(
 Finally we take the edge case parameter combinations and union the three different sets:
 
 ```{r}
-alphas_grid <- list_edge_alphas() |>
-  dplyr::bind_rows(alphas_grid_ses) |>
-  dplyr::bind_rows(alphas_grid) |>
-  dplyr::distinct()
+alphas_grid <- unique(
+  rbind(
+    list_edge_alphas(),
+    alphas_grid_ses,
+    alphas_grid
+    )
+  )
 
 weight_three_most_recent_indices <- rowSums(
   threedx:::weights_threedx_vec(
