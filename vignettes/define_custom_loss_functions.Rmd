@@ -1,0 +1,63 @@
+---
+title: "Define Custom Loss Functions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Define Custom Loss Functions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(threedx)
+```
+
+Since `learn_weights()` fits a `threedx` model by evaluating all parameter combinations provided via the `alphas_grid` argument, we can use any kind of `loss_function` to compare models on the training data.
+
+While `threedx` comes with a few built-in loss functions, they serve as defaults and as examples. You can define any other that fits your application, and you're not limited to those for which you know the derivative.
+
+## Constructing a Loss Function
+
+At the time of writing, `learn_weights()` passes three arguments to a loss function:
+
+- A numeric vector of observed actuals `y` without missing values
+- A numeric vector of one-step-ahead predictions `y_hat` of same length as `y` and also without missing values
+- Further arguments `...` that might be provided in the future
+
+For a loss function, the access to `y` and `y_hat` of course is essential to compute errors, or to assign weights to errors.
+
+In return, `learn_weights()` expects to receive a non-missing numeric scalar value from the loss function. These scalars will be minimized across parameter combinations defined by `alphas_grid` to choose the optimal parameter combination.
+
+One of the simplest possible loss functions that can be used is the mean absolute error loss function. Its implementation in `threedx` is straightforward:
+
+```{r}
+print(loss_mae)
+```
+
+```{r}
+loss_mae(y_hat = c(5, -3, 2), y = c(1, 1, -2))
+```
+
+But you can go more complex. For example, `threedx` provides a loss that assigns weight (based on the size of the observation) to each absolute error before taking the mean:
+
+```{r}
+print(loss_mae_with_observation_weight)
+```
+
+Wether this is a useful loss function will depend on your context. But it goes to show that you have a lot of flexibility.
+
+Another idea could be to define a function that only ever takes the 20 most recent observations into account:
+
+```{r}
+loss_mae_twenty_most_recent <- function(y_hat, y, ...) {
+  loss_mae(utils::tail(y_hat, 20), utils::tail(y, 20), ...)
+}
+```
+
+Or one that applies moving averages on observations and predictions first, or one that only takes into account the observations from the same seasonal period as the next one-step-ahead prediction will perform, or ...
