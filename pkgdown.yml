@@ -3,8 +3,12 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   forecasting_trends: forecasting_trends.html
+  define_custom_innovation_functions: define_custom_innovation_functions.html
+  define_custom_loss_functions: define_custom_loss_functions.html
+  generating_diverse_weights: generating_diverse_weights.html
   threedx: threedx.html
-last_built: 2023-07-17T19:30Z
+  working_with_forecast_sample_paths: working_with_forecast_sample_paths.html
+last_built: 2023-07-20T19:28Z
 urls:
   reference: http://timradtke.github.io/threedx/reference
   article: http://timradtke.github.io/threedx/articles

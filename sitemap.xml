@@ -10,13 +10,25 @@
     <loc>http://timradtke.github.io/threedx/LICENSE.html</loc>
   </url>
   <url>
+    <loc>http://timradtke.github.io/threedx/articles/define_custom_innovation_functions.html</loc>
+  </url>
+  <url>
+    <loc>http://timradtke.github.io/threedx/articles/define_custom_loss_functions.html</loc>
+  </url>
+  <url>
     <loc>http://timradtke.github.io/threedx/articles/forecasting_trends.html</loc>
+  </url>
+  <url>
+    <loc>http://timradtke.github.io/threedx/articles/generating_diverse_weights.html</loc>
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/articles/index.html</loc>
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/articles/threedx.html</loc>
+  </url>
+  <url>
+    <loc>http://timradtke.github.io/threedx/articles/working_with_forecast_sample_paths.html</loc>
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/authors.html</loc>
