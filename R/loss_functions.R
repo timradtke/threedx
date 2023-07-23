@@ -1,4 +1,4 @@
-#' Observation-weighted mean-absolute error loss function
+#' Observation-weighted mean absolute error loss function
 #' 
 #' @param y_hat A numeric vector representing predictions
 #' @param y A numeric vector representing observations

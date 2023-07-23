@@ -1,20 +1,24 @@
-
 #' Fit a 3DX model to a time series
+#' 
+#' Returns a `threedx` model applied to time series `y` after learning the
+#' optimal set of parameters by minimizing a provided loss function. Use
+#' [predict.threedx()] to generate a forecast based on the fitted model.
 #' 
 #' @param y The time series to be forecasted as numeric vector (not as `ts()`
 #'   object)
-#' @param period_length The presumed length of `y`'s seasonal period
+#' @param period_length The presumed length of `y`'s seasonal period; for
+#'   example, `12L` for monthly observations, `7L` for daily observations, ...
 #' @param alphas_grid A data frame of possible parameter combinations to
 #'   generate the weights of the final model. The optimal parameter set will be
 #'   chosen based on the minimization of `loss_function`. The expected columns
 #'   are numeric and called `alpha`, `alpha_seasonal`, `alpha_seasonal_decay`.
 #'   At least one row must be provided. All values must be between 0 and 1.
-#'   This list can be generated via [list_sampled_alphas()] or
-#'   [list_edge_alphas()], for example, but you can generate it in any way you
-#'   like.
+#'   Use, for example, [list_sampled_alphas()] or
+#'   [list_edge_alphas()] to generate this data frame, or generate it in any way
+#'   you like.
 #' @param loss_function A function with first argument `y_hat` and optionally
 #'   more arguments. Usually, to compute a loss, at least an additional `y`
-#'   argument is required---to compute errors. Must be able to handle additional
+#'   argument is required to compute errors. Must be able to handle additional
 #'   parameters via `...` to allow for potential future changes in the set of
 #'   arguments passed to `loss_function` by [learn_weights()].
 #'   For examples, see [loss_mae()] or [loss_mae_with_observation_weight()].

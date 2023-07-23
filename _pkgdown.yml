@@ -31,3 +31,5 @@ reference:
 - title: "Helper Functions"
   contents:
   - "k_largest_weights_sum_to_less_than_p_percent"
+  - "fitted.threedx"
+  - "residuals.threedx"

@@ -3,7 +3,9 @@ if (getRversion() >= "3.6.0") {
   S3method(ggplot2::autoplot, threedx)
   S3method(ggplot2::autoplot, threedx_paths)
 }
+S3method(fitted,threedx)
 S3method(predict,threedx)
+S3method(residuals,threedx)
 export(draw_bootstrap)
 export(draw_bootstrap_weighted)
 export(draw_bootstrap_zero_mean)

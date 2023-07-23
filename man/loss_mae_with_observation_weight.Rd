@@ -2,7 +2,7 @@
 % Please edit documentation in R/loss_functions.R
 \name{loss_mae_with_observation_weight}
 \alias{loss_mae_with_observation_weight}
-\title{Observation-weighted mean-absolute error loss function}
+\title{Observation-weighted mean absolute error loss function}
 \usage{
 loss_mae_with_observation_weight(y_hat, y, ...)
 }
@@ -17,7 +17,7 @@ loss_mae_with_observation_weight(y_hat, y, ...)
 A scalar value
 }
 \description{
-Observation-weighted mean-absolute error loss function
+Observation-weighted mean absolute error loss function
 }
 \references{
 Suman Ravuri et al. (2021).
