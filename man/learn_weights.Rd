@@ -10,20 +10,21 @@ learn_weights(y, period_length, alphas_grid, loss_function)
 \item{y}{The time series to be forecasted as numeric vector (not as \code{ts()}
 object)}
 
-\item{period_length}{The presumed length of \code{y}'s seasonal period}
+\item{period_length}{The presumed length of \code{y}'s seasonal period; for
+example, \code{12L} for monthly observations, \code{7L} for daily observations, ...}
 
 \item{alphas_grid}{A data frame of possible parameter combinations to
 generate the weights of the final model. The optimal parameter set will be
 chosen based on the minimization of \code{loss_function}. The expected columns
 are numeric and called \code{alpha}, \code{alpha_seasonal}, \code{alpha_seasonal_decay}.
 At least one row must be provided. All values must be between 0 and 1.
-This list can be generated via \code{\link[=list_sampled_alphas]{list_sampled_alphas()}} or
-\code{\link[=list_edge_alphas]{list_edge_alphas()}}, for example, but you can generate it in any way you
-like.}
+Use, for example, \code{\link[=list_sampled_alphas]{list_sampled_alphas()}} or
+\code{\link[=list_edge_alphas]{list_edge_alphas()}} to generate this data frame, or generate it in any way
+you like.}
 
 \item{loss_function}{A function with first argument \code{y_hat} and optionally
 more arguments. Usually, to compute a loss, at least an additional \code{y}
-argument is required---to compute errors. Must be able to handle additional
+argument is required to compute errors. Must be able to handle additional
 parameters via \code{...} to allow for potential future changes in the set of
 arguments passed to \code{loss_function} by \code{\link[=learn_weights]{learn_weights()}}.
 For examples, see \code{\link[=loss_mae]{loss_mae()}} or \code{\link[=loss_mae_with_observation_weight]{loss_mae_with_observation_weight()}}.
@@ -62,7 +63,9 @@ optimization for all other parameter combinations provided via
 }
 }
 \description{
-Fit a 3DX model to a time series
+Returns a \code{threedx} model applied to time series \code{y} after learning the
+optimal set of parameters by minimizing a provided loss function. Use
+\code{\link[=predict.threedx]{predict.threedx()}} to generate a forecast based on the fitted model.
 }
 \examples{
 set.seed(9284)

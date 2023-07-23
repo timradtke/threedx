@@ -1,3 +1,5 @@
 R/zzz.R
 R/threedx-package.R
 R/autoplot.R
+R/fitted.R
+R/residuals.R
