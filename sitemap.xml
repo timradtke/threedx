@@ -61,6 +61,9 @@
     <loc>http://timradtke.github.io/threedx/reference/draw_normal_with_zero_mean.html</loc>
   </url>
   <url>
+    <loc>http://timradtke.github.io/threedx/reference/fitted.threedx.html</loc>
+  </url>
+  <url>
     <loc>http://timradtke.github.io/threedx/reference/index.html</loc>
   </url>
   <url>
@@ -110,6 +113,9 @@
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/reference/predict_with_state.html</loc>
+  </url>
+  <url>
+    <loc>http://timradtke.github.io/threedx/reference/residuals.threedx.html</loc>
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/reference/threedx-package.html</loc>
