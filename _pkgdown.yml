@@ -31,5 +31,6 @@ reference:
 - title: "Helper Functions"
   contents:
   - "k_largest_weights_sum_to_less_than_p_percent"
+  - "non_negative_with_identical_mean"
   - "fitted.threedx"
   - "residuals.threedx"
