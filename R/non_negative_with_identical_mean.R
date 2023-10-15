@@ -1,4 +1,6 @@
-#' Postprocess function making forecast samples non-negative while keeping the
+#' Turn values non-negative while preserving their sample mean
+#' 
+#' Postprocess function turning forecast samples non-negative while keeping the
 #' mean at the same value as it was before through scaling of the samples 
 #' (unless the sample mean was originally negative).
 #' 
