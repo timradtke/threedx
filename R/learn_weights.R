@@ -25,6 +25,15 @@
 #'   It can be assumed that the arguments `y_hat` and `y` passed by
 #'   [learn_weights()] are numeric vectors of equal length.
 #'   The provided `loss_function` must return a numeric scalar value.
+#' @param penalize Logical, `FALSE` by default. If `TRUE`, will try to pick
+#'   a set of parameters that are simpler while not increasing the loss too 
+#'   much. The allowed increase in loss in percentage points is defined via the 
+#'   `loss_increase`. A model is simpler if more of its parameters are
+#'   equal to exactly zero or one, as these correspond to the edge cases.
+#' @param loss_increase A non-negative scalar value by which the loss may be
+#'   increased compared to the best possible loss, in percentage points. This
+#'   argument is ignored unless `penalize = TRUE`. The default of `1`
+#'   corresponds to a range of up to a 1 percentage point increase in loss.
 #' 
 #' @return A fitted model object of class `threedx`, which is a list of:
 #' * A numeric vector `weights` of the same length as the input `y`, assigning
@@ -49,6 +58,8 @@
 #'   on the input `y` and the fitted values (ignoring the initial missing
 #'   values) for the loss minimizing set of parameters reported in `alpha`,
 #'   `alpha_seasonal`, `alpha_seasonal_decay`
+#' * A logical `penalize`, identical to the provided function argument
+#' * A scalar `loss_increase`, identical to the provided function argument
 #' * A list `full` containing intermediate results observed during model
 #'   optimization for all other parameter combinations provided via
 #'   `alphas_grid`
@@ -60,12 +71,14 @@
 #' set.seed(9284)
 #' y <- stats::rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi((5 + 1:55 )/ 6)))
 #'
+#' alphas_grid <- list_sampled_alphas(
+#'   n_target = 1000L,
+#'   include_edge_cases = TRUE
+#' )
+#'
 #' model <- learn_weights(
 #'   y = y,
-#'   alphas_grid = list_sampled_alphas(
-#'     n_target = 1000L,
-#'     include_edge_cases = TRUE
-#'   ),
+#'   alphas_grid = alphas_grid,
 #'   period_length = 12L,
 #'   loss_function = loss_mae
 #' )
@@ -73,15 +86,31 @@
 #' if (require("ggplot2")) {
 #'   autoplot(model)
 #' }
+#' 
+#' model_penalized <- learn_weights(
+#'   y = y,
+#'   alphas_grid = alphas_grid,
+#'   period_length = 12L,
+#'   loss_function = loss_mae,
+#'   penalize = TRUE,
+#'   loss_increase = 10
+#' )
+#' 
+#' model$full$best_alphas
+#' model_penalized$full$best_alphas
+#'
+#' if (require("ggplot2")) {
+#'   autoplot(model_penalized)
+#' }
 #'
 learn_weights <- function(y,
                           period_length,
                           alphas_grid,
-                          loss_function) {
+                          loss_function,
+                          penalize = FALSE,
+                          loss_increase = 1) {
   
-  checkmate::assert_numeric(
-    x = y, any.missing = FALSE, min.len = 2
-  )
+  checkmate::assert_numeric(x = y, any.missing = FALSE, min.len = 2)
   
   if (stats::is.ts(y)) {
     stop("Please provide `y` not as time series but as a generic numeric vector.")
@@ -100,6 +129,7 @@ learn_weights <- function(y,
   checkmate::assert_function(
     x = loss_function, args = c("y_hat", "..."), ordered = FALSE
   )
+  checkmate::assert_logical(x = penalize, any.missing = FALSE, len = 1)
   
   n <- length(y)
   
@@ -133,6 +163,14 @@ learn_weights <- function(y,
   )
   
   best_alphas_idx <- which.min(step_ahead_loss)
+  if (penalize) {
+    best_alphas_idx <- trade_loss_for_simplicity(
+      alphas_grid = alphas_grid,
+      losses = step_ahead_loss,
+      increase = loss_increase
+    )
+  }
+  
   best_alphas <- alphas_grid[best_alphas_idx, ]
   row.names(best_alphas) <- NULL
   
@@ -157,6 +195,8 @@ learn_weights <- function(y,
       period_length = period_length,
       loss_function = loss_function,
       loss = step_ahead_loss[best_alphas_idx],
+      penalize = penalize,
+      loss_increase = loss_increase,
       full = list(
         best_alphas_idx = best_alphas_idx,
         best_alphas = best_alphas,
