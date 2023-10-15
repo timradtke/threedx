@@ -389,6 +389,32 @@ test_that("returns expected `threedx` object for even and odd time series length
   )
 })
 
+test_that("penalizes model complexity when `penalize = TRUE`", {
+  # because the time series is entirely zero-valued, all model specifications
+  # achieve exactly zero loss; normally the first model specification would
+  # be returned, but here it is the third as the third is the first
+  # specification with the lowest complexity
+  model <- learn_weights(
+    y = rep(0, times = 50),
+    period_length = 12L,
+    alphas_grid = data.frame(
+      alpha = c(0.1, 0, 0, 0),
+      alpha_seasonal = c(0.5, 0.9, 0, 1),
+      alpha_seasonal_decay = c(0.01, 0, 0, 1)
+    ),
+    loss_function = loss_mae,
+    penalize = TRUE,
+    loss_increase = 5
+  )
+  
+  expect_equal(model$alpha, 0)
+  expect_equal(model$alpha_seasonal, 0)
+  expect_equal(model$alpha_seasonal_decay, 0)
+  expect_equal(model$full$best_alphas_idx, 3)
+  expect_true(model$penalize)
+  expect_equal(model$loss_increase, 5)
+})
+
 test_that("fails when `y` is provided as time series object", {
   expect_error(
     learn_weights(

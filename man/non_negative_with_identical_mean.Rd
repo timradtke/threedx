@@ -2,9 +2,7 @@
 % Please edit documentation in R/non_negative_with_identical_mean.R
 \name{non_negative_with_identical_mean}
 \alias{non_negative_with_identical_mean}
-\title{Postprocess function making forecast samples non-negative while keeping the
-mean at the same value as it was before through scaling of the samples
-(unless the sample mean was originally negative).}
+\title{Turn values non-negative while preserving their sample mean}
 \usage{
 non_negative_with_identical_mean(x)
 }
@@ -15,11 +13,15 @@ non_negative_with_identical_mean(x)
 A numeric matrix of dimensions (k, 1)
 }
 \description{
+Postprocess function turning forecast samples non-negative while keeping the
+mean at the same value as it was before through scaling of the samples
+(unless the sample mean was originally negative).
+}
+\details{
 While the identical sample mean can be enforced, this will generally decrease
 the sample variance as this is the only way to maintain the mean while
 turning negative samples to zero to enforce the non-negativity constraint.
-}
-\details{
+
 The returned samples will always be non-negative. The sample mean will not be
 identical if it cannot be achieved given the non-negative samples.
 }

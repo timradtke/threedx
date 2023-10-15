@@ -4,7 +4,14 @@
 \alias{learn_weights}
 \title{Fit a 3DX model to a time series}
 \usage{
-learn_weights(y, period_length, alphas_grid, loss_function)
+learn_weights(
+  y,
+  period_length,
+  alphas_grid,
+  loss_function,
+  penalize = FALSE,
+  loss_increase = 1
+)
 }
 \arguments{
 \item{y}{The time series to be forecasted as numeric vector (not as \code{ts()}
@@ -31,6 +38,17 @@ For examples, see \code{\link[=loss_mae]{loss_mae()}} or \code{\link[=loss_mae_w
 It can be assumed that the arguments \code{y_hat} and \code{y} passed by
 \code{\link[=learn_weights]{learn_weights()}} are numeric vectors of equal length.
 The provided \code{loss_function} must return a numeric scalar value.}
+
+\item{penalize}{Logical, \code{FALSE} by default. If \code{TRUE}, will try to pick
+a set of parameters that are simpler while not increasing the loss too
+much. The allowed increase in loss in percentage points is defined via the
+\code{loss_increase}. A model is simpler if more of its parameters are
+equal to exactly zero or one, as these correspond to the edge cases.}
+
+\item{loss_increase}{A non-negative scalar value by which the loss may be
+increased compared to the best possible loss, in percentage points. This
+argument is ignored unless \code{penalize = TRUE}. The default of \code{1}
+corresponds to a range of up to a 1 percentage point increase in loss.}
 }
 \value{
 A fitted model object of class \code{threedx}, which is a list of:
@@ -57,6 +75,8 @@ observations may be missing.
 on the input \code{y} and the fitted values (ignoring the initial missing
 values) for the loss minimizing set of parameters reported in \code{alpha},
 \code{alpha_seasonal}, \code{alpha_seasonal_decay}
+\item A logical \code{penalize}, identical to the provided function argument
+\item A scalar \code{loss_increase}, identical to the provided function argument
 \item A list \code{full} containing intermediate results observed during model
 optimization for all other parameter combinations provided via
 \code{alphas_grid}
@@ -71,18 +91,36 @@ optimal set of parameters by minimizing a provided loss function. Use
 set.seed(9284)
 y <- stats::rpois(n = 55, lambda = pmax(0.1, 1 + 10 * sinpi((5 + 1:55 )/ 6)))
 
+alphas_grid <- list_sampled_alphas(
+  n_target = 1000L,
+  include_edge_cases = TRUE
+)
+
 model <- learn_weights(
   y = y,
-  alphas_grid = list_sampled_alphas(
-    n_target = 1000L,
-    include_edge_cases = TRUE
-  ),
+  alphas_grid = alphas_grid,
   period_length = 12L,
   loss_function = loss_mae
 )
 
 if (require("ggplot2")) {
   autoplot(model)
+}
+
+model_penalized <- learn_weights(
+  y = y,
+  alphas_grid = alphas_grid,
+  period_length = 12L,
+  loss_function = loss_mae,
+  penalize = TRUE,
+  loss_increase = 10
+)
+
+model$full$best_alphas
+model_penalized$full$best_alphas
+
+if (require("ggplot2")) {
+  autoplot(model_penalized)
 }
 
 }
