@@ -130,6 +130,9 @@ predict.threedx <- function(object,
   checkmate::assert_logical(
     x = observation_driven, len = 1, any.missing = FALSE
   )
+  checkmate::assert_integerish(
+    x = n_samples, lower = 1, any.missing = FALSE, len = 1
+  )
   
   y_m <- matrix(
     data = object$y,
