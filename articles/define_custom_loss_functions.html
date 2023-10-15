@@ -124,7 +124,7 @@ mean absolute error loss function. Its implementation in
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     mean(abs(y - y_hat))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x556c411ffba0&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x55f6c3662d00&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:threedx&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/loss_mae.html">loss_mae</a></span><span class="op">(</span>y_hat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="op">-</span><span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="op">-</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -138,7 +138,7 @@ observation) to each absolute error before taking the mean:</p>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     sqrt(mean(abs(y - y_hat) * pmax(y, abs(y - y_hat))))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x556c41564dc8&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x55f6c39d8588&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:threedx&gt;</span></span></code></pre></div>
 <p>Wether this is a useful loss function will depend on your context.
 But it goes to show that you have a lot of flexibility.</p>
