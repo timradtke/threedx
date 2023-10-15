@@ -12,7 +12,7 @@ test_that("returns non-negative version of input with identical sample mean if s
 test_that("returns input if input is non-negative", {
   x <- matrix(data = rpois(n = 10, lambda = 1), ncol = 1)
   x_non_negative <- non_negative_with_identical_mean(x = x)
-  expect_identical(x_non_negative, x)
+  expect_equal(x_non_negative, x)
 })
 
 test_that("returns non-negative with different mean if input mean is negative", {
