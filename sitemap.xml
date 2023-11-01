@@ -94,9 +94,6 @@
     <loc>http://timradtke.github.io/threedx/reference/loss_rmse_ignoring_bias.html</loc>
   </url>
   <url>
-    <loc>http://timradtke.github.io/threedx/reference/non_negative_with_identical_mean.html</loc>
-  </url>
-  <url>
     <loc>http://timradtke.github.io/threedx/reference/plot_fitted.html</loc>
   </url>
   <url>
@@ -122,6 +119,12 @@
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/reference/threedx-package.html</loc>
+  </url>
+  <url>
+    <loc>http://timradtke.github.io/threedx/reference/to_moment_matched_nbinom.html</loc>
+  </url>
+  <url>
+    <loc>http://timradtke.github.io/threedx/reference/to_non_negative_with_identical_mean.html</loc>
   </url>
   <url>
     <loc>http://timradtke.github.io/threedx/reference/trade_loss_for_simplicity.html</loc>

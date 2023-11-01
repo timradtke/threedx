@@ -111,15 +111,17 @@ This argument is ignored when <code>observation_driven=TRUE</code>.</p></dd>
 
 
 <dt>postprocess</dt>
-<dd><p>A function that is applied on a numeric matrix of
+<dd><p>A function that is applied on a numeric vector of
 drawn samples for a single step-ahead before the samples are used to
 update the state of the model, and before outliers are removed
 (if applicable). By default equal to <code><a href="https://rdrr.io/r/base/identity.html" class="external-link">identity()</a></code>, but could also
 be something like <code>function(x) pmax(x, 0)</code> to enforce a lower bound of 0,
-or any other transformation of interest that returns a numeric matrix of
-same dimensions as those of the input.
+or any other transformation of interest that returns a numeric vector of
+equal length as that of the input.
 Note that this can cause arbitrary errors caused by the author of the
-function provided to <code>postprocess</code>.</p></dd>
+function provided to <code>postprocess</code>.
+For examples, see <code><a href="to_non_negative_with_identical_mean.html">to_non_negative_with_identical_mean()</a></code> or
+<code><a href="to_moment_matched_nbinom.html">to_moment_matched_nbinom()</a></code>.</p></dd>
 
 
 <dt>...</dt>
@@ -164,7 +166,8 @@ as it limits the range of possible future values too much.</p>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="learn_weights.html">learn_weights()</a></code>, <code><a href="k_largest_weights_sum_to_less_than_p_percent.html">k_largest_weights_sum_to_less_than_p_percent()</a></code>,
 <code><a href="loss_mae.html">loss_mae()</a></code>, <code><a href="loss_rmse.html">loss_rmse()</a></code>, <code><a href="draw_normal_with_zero_mean.html">draw_normal_with_zero_mean()</a></code>,
-<code><a href="draw_bootstrap.html">draw_bootstrap()</a></code></p></div>
+<code><a href="draw_bootstrap.html">draw_bootstrap()</a></code>, <code><a href="to_non_negative_with_identical_mean.html">to_non_negative_with_identical_mean()</a></code>,
+<code><a href="to_moment_matched_nbinom.html">to_moment_matched_nbinom()</a></code></p></div>
     </div>
 
     <div class="section level2">
