@@ -11,37 +11,35 @@
 #' The returned samples will always be non-negative. The sample mean will not be
 #' identical if it cannot be achieved given the non-negative samples.
 #' 
-#' @param x A numeric matrix of dimensions (k, 1)
+#' @param x A numeric vector
 #' 
-#' @return A numeric matrix of dimensions (k, 1)
+#' @return Numeric vector of length equal to `x`
 #' 
-#' @seealso [predict.threedx()]
+#' @seealso [predict.threedx()], [to_moment_matched_nbinom()]
 #' 
 #' @export
 #' @examples
-#' non_negative_with_identical_mean(x = matrix(c(-1, 0, 1, 2), ncol = 1))
+#' to_non_negative_with_identical_mean(x = c(-1, 0, 1, 2))
 #' 
-#' x <- matrix(rnorm(100, 0.5), ncol = 1)
+#' x <- rnorm(100, 0.5)
 #' summary(x)
-#' summary(non_negative_with_identical_mean(x))
+#' summary(to_non_negative_with_identical_mean(x))
 #' 
-#' x <- matrix(rnorm(100, -1), ncol = 1)
+#' x <- rnorm(100, -1)
 #' summary(x)
 #' # can't keep identical mean as original mean is negative
-#' summary(non_negative_with_identical_mean(x))
+#' summary(to_non_negative_with_identical_mean(x))
 #' 
-non_negative_with_identical_mean <- function(x) {
-  checkmate::assert_matrix(x = x, min.cols = 1, max.cols = 1)
-  if (nrow(x) == 0) {
+to_non_negative_with_identical_mean <- function(x) {
+  checkmate::assert_numeric(x = x)
+  if (length(x) == 0) {
     return(x)
   }
   if (anyNA(x)) {
-    x[, 1] <- NA_real_
-    return(x)
+    stop("Can't postprocess sample values that are NA.")
   }
   
-  x_non_negative <- x
-  x_non_negative[, 1] <- pmax(0, x)
+  x_non_negative <- pmax(0, x)
   
   if (mean(x_non_negative) == 0 || mean(x) < 0) {
     return(x_non_negative)
