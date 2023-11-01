@@ -40,15 +40,17 @@
 #'   `n` that contains i.i.d samples that can be used for any sample path and
 #'   forecast horizon.
 #'   This argument is ignored when `observation_driven=TRUE`.
-#' @param postprocess A function that is applied on a numeric matrix of
+#' @param postprocess A function that is applied on a numeric vector of
 #'   drawn samples for a single step-ahead before the samples are used to
 #'   update the state of the model, and before outliers are removed
 #'   (if applicable). By default equal to `identity()`, but could also
 #'   be something like `function(x) pmax(x, 0)` to enforce a lower bound of 0,
-#'   or any other transformation of interest that returns a numeric matrix of
-#'   same dimensions as those of the input.
+#'   or any other transformation of interest that returns a numeric vector of
+#'   equal length as that of the input.
 #'   Note that this can cause arbitrary errors caused by the author of the
 #'   function provided to `postprocess`.
+#'   For examples, see [to_non_negative_with_identical_mean()] or
+#'   [to_moment_matched_nbinom()].
 #' @param ... Additional arguments passed to `innovation_function`
 #' 
 #' @return 
@@ -65,7 +67,8 @@
 #' 
 #' @seealso [learn_weights()], [k_largest_weights_sum_to_less_than_p_percent()],
 #'   [loss_mae()], [loss_rmse()], [draw_normal_with_zero_mean()],
-#'   [draw_bootstrap()]
+#'   [draw_bootstrap()], [to_non_negative_with_identical_mean()],
+#'   [to_moment_matched_nbinom()]
 #' 
 #' @export
 #' @examples
@@ -215,10 +218,9 @@ predict_with_observations <- function(y_m,
     tmp_y_m <- cbind(y_m, y_hat_m[, seq_len(idx-1), drop = FALSE])
     
     for (sample_idx in seq_len(n_samples)) {
-      y_hat_m[sample_idx, idx] <- postprocess(
-        tmp_y_m[
-          sample_idx, sample_indices[sample_idx]
-        ]
+      y_hat_m[sample_idx, idx] <- from_and_to_matrix_column(
+        data = tmp_y_m[sample_idx, sample_indices[sample_idx]],
+        FUN = postprocess
       )
     }
   }
@@ -271,8 +273,8 @@ predict_with_state <- function(y_m,
   )
   
   for (idx in seq_len(horizon)) {
-    y_hat_m[, idx] <- postprocess(
-      y_hat_m[, idx] +
+    y_hat_m[, idx] <- from_and_to_matrix_column(
+      data = y_hat_m[, idx] +
         cbind(y_m, y_hat_m[, seq_len(idx-1), drop = FALSE]) %*%
         matrix(
           data = weights_threedx(
@@ -283,9 +285,17 @@ predict_with_state <- function(y_m,
             period_length = object$period_length
           ),
           ncol = 1
-        )
+        ),
+      FUN = postprocess
     )
   }
   
   return(y_hat_m)
+}
+
+from_and_to_matrix_column <- function(data, FUN) {
+  matrix(
+    data = FUN(as.numeric(data)),
+    ncol = 1
+  )
 }

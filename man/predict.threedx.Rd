@@ -40,15 +40,17 @@ The provided \code{innovation_function} must return a numeric vector of length
 forecast horizon.
 This argument is ignored when \code{observation_driven=TRUE}.}
 
-\item{postprocess}{A function that is applied on a numeric matrix of
+\item{postprocess}{A function that is applied on a numeric vector of
 drawn samples for a single step-ahead before the samples are used to
 update the state of the model, and before outliers are removed
 (if applicable). By default equal to \code{identity()}, but could also
 be something like \code{function(x) pmax(x, 0)} to enforce a lower bound of 0,
-or any other transformation of interest that returns a numeric matrix of
-same dimensions as those of the input.
+or any other transformation of interest that returns a numeric vector of
+equal length as that of the input.
 Note that this can cause arbitrary errors caused by the author of the
-function provided to \code{postprocess}.}
+function provided to \code{postprocess}.
+For examples, see \code{\link[=to_non_negative_with_identical_mean]{to_non_negative_with_identical_mean()}} or
+\code{\link[=to_moment_matched_nbinom]{to_moment_matched_nbinom()}}.}
 
 \item{...}{Additional arguments passed to \code{innovation_function}}
 }
@@ -144,5 +146,6 @@ if (require("ggplot2")) {
 \seealso{
 \code{\link[=learn_weights]{learn_weights()}}, \code{\link[=k_largest_weights_sum_to_less_than_p_percent]{k_largest_weights_sum_to_less_than_p_percent()}},
 \code{\link[=loss_mae]{loss_mae()}}, \code{\link[=loss_rmse]{loss_rmse()}}, \code{\link[=draw_normal_with_zero_mean]{draw_normal_with_zero_mean()}},
-\code{\link[=draw_bootstrap]{draw_bootstrap()}}
+\code{\link[=draw_bootstrap]{draw_bootstrap()}}, \code{\link[=to_non_negative_with_identical_mean]{to_non_negative_with_identical_mean()}},
+\code{\link[=to_moment_matched_nbinom]{to_moment_matched_nbinom()}}
 }

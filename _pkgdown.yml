@@ -28,10 +28,13 @@ reference:
   desc: "Generate the weights that are the fundamental component of `threedx` models."
   contents:
   - starts_with("weights_")
+- title: "Sample Path Postprocessing"
+  desc: "Functions to postprocess samples during generation of forecast sample paths."
+  contents:
+  - starts_with("to_")
 - title: "Helper Functions"
   contents:
   - "k_largest_weights_sum_to_less_than_p_percent"
-  - "non_negative_with_identical_mean"
   - "trade_loss_for_simplicity"
   - "fitted.threedx"
   - "residuals.threedx"
