@@ -145,14 +145,65 @@ learn_weights <- function(y,
     ncol = nrow(alphas_grid)
   )
   
-  for (i_steps_back in 1:(n - offset)) {
-    step_ahead_predictions[n - i_steps_back + 1, ] <- 
+  # each column has a copy of the input data
+  y_cleaned <- matrix(
+    data = y,
+    nrow = n,
+    ncol = nrow(alphas_grid)
+  )
+  
+  y_residual <- matrix(
+    data = NA_real_,
+    nrow = n,
+    ncol = nrow(alphas_grid)
+  )
+  
+  sd_cumulative <- matrix(
+    data = NA_real_,
+    nrow = n,
+    ncol = nrow(alphas_grid)
+  )
+  
+  is_anomaly <- matrix(
+    data = FALSE,
+    nrow = n,
+    ncol = nrow(alphas_grid)
+  )
+  
+  for (i_steps_back in (n - offset):1) {
+    i <- n - i_steps_back + 1
+    
+    step_ahead_predictions[n - i_steps_back + 1, ] <-
       predict_one_step_ahead_with_grid(
-        y = y[seq_len(n - i_steps_back)],
+        y = y_cleaned[seq_len(n - i_steps_back), ],
         alphas_grid = alphas_grid,
         n = n - i_steps_back,
         period_length = period_length
       )
+    
+    # calculate sd
+    # TODO: first non NaN sd is systematically 0
+    sd_cumulative[n - i_steps_back + 1, ] <-
+      # implement numerically save alternative
+      (colMeans(y_residual^2, na.rm = TRUE) - colMeans(y_residual, na.rm = TRUE)^2)^0.5
+    
+    # calculate residual
+    y_residual[n - i_steps_back + 1, ] <- y_cleaned[n - i_steps_back + 1, ] -
+      step_ahead_predictions[n - i_steps_back + 1, ]
+    
+    # check whether is_anomaly
+    # TODO: ensure NA becomes FALSE
+    # TODO: run this only after a while
+    if (i > 2 * period_length) {
+      is_anomaly[i, ] <- (
+        (y_cleaned[i, ] > step_ahead_predictions[i, ] + 3 * sd_cumulative[i, ]) |
+          (y_cleaned[i, ] < step_ahead_predictions[i, ] - 3 * sd_cumulative[i, ])
+      )
+      is_anomaly[i, ] <- ifelse(is.na(is_anomaly[i, ]), FALSE, is_anomaly[i, ])
+    }
+    
+    y_cleaned[i, is_anomaly[i, ]] <- step_ahead_predictions[i, is_anomaly[i, ]]
+    y_residual[i, is_anomaly[i, ]] <- NA_real_
   }
   
   step_ahead_loss <- apply(
@@ -190,6 +241,11 @@ learn_weights <- function(y,
       alpha_seasonal_decay = best_alphas$alpha_seasonal_decay,
       fitted = step_ahead_predictions[, best_alphas_idx, drop = TRUE],
       residuals = step_ahead_residuals[, best_alphas_idx, drop = TRUE],
+      is_anomaly = is_anomaly[, best_alphas_idx, drop = TRUE],
+      anomaly_bound_upper = step_ahead_predictions[, best_alphas_idx, drop = TRUE] +
+        3 * sd_cumulative[, best_alphas_idx, drop = TRUE],
+      anomaly_bound_lower = step_ahead_predictions[, best_alphas_idx, drop = TRUE] -
+        3 * sd_cumulative[, best_alphas_idx, drop = TRUE],
       y = y,
       n = n,
       period_length = period_length,
@@ -235,5 +291,7 @@ predict_one_step_ahead_with_grid <- function(y, alphas_grid, n, period_length) {
     period_length = period_length
   )
   
-  matrix(data = y, nrow = 1) %*% t(weight_grid)
+  colSums(y * t(weight_grid))
+  
+  # matrix(data = y, nrow = 1) %*% t(weight_grid)
 }
