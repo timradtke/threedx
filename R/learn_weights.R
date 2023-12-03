@@ -108,7 +108,10 @@ learn_weights <- function(y,
                           alphas_grid,
                           loss_function,
                           penalize = FALSE,
-                          loss_increase = 1) {
+                          loss_increase = 1,
+                          pass_over_anomalies = FALSE,
+                          anomaly_threshold = 5,
+                          anomaly_start = 2 * period_length) {
   
   checkmate::assert_numeric(x = y, any.missing = FALSE, min.len = 2)
   
@@ -173,37 +176,26 @@ learn_weights <- function(y,
   for (i_steps_back in (n - offset):1) {
     i <- n - i_steps_back + 1
     
-    step_ahead_predictions[n - i_steps_back + 1, ] <-
-      predict_one_step_ahead_with_grid(
+    step_ahead_predictions[i, ] <- predict_one_step_ahead_with_grid(
         y = y_cleaned[seq_len(n - i_steps_back), ],
         alphas_grid = alphas_grid,
         n = n - i_steps_back,
         period_length = period_length
       )
     
-    # calculate sd
-    # TODO: first non NaN sd is systematically 0
-    sd_cumulative[n - i_steps_back + 1, ] <-
-      # implement numerically save alternative
-      (colMeans(y_residual^2, na.rm = TRUE) - colMeans(y_residual, na.rm = TRUE)^2)^0.5
-    
-    # calculate residual
-    y_residual[n - i_steps_back + 1, ] <- y_cleaned[n - i_steps_back + 1, ] -
-      step_ahead_predictions[n - i_steps_back + 1, ]
-    
-    # check whether is_anomaly
-    # TODO: ensure NA becomes FALSE
-    # TODO: run this only after a while
-    if (i > 2 * period_length) {
-      is_anomaly[i, ] <- (
-        (y_cleaned[i, ] > step_ahead_predictions[i, ] + 3 * sd_cumulative[i, ]) |
-          (y_cleaned[i, ] < step_ahead_predictions[i, ] - 3 * sd_cumulative[i, ])
-      )
-      is_anomaly[i, ] <- ifelse(is.na(is_anomaly[i, ]), FALSE, is_anomaly[i, ])
+    if (pass_over_anomalies) {
+      sd_cumulative[i, ] <- apply_sd(y_residual)
+      y_residual[i, ] <- y_cleaned[i, ] - step_ahead_predictions[i, ]
+      
+      # can't start sooner than (i > (period_length + 2))
+      if (i > max(period_length + 2, anomaly_start)) {
+        is_anomaly[i, ] <- abs(y_residual[i, ]) > anomaly_threshold * sd_cumulative[i, ]
+        is_anomaly[i, ] <- ifelse(is.na(is_anomaly[i, ]), FALSE, is_anomaly[i, ])
+      }
+      
+      y_cleaned[i, is_anomaly[i, ]] <- step_ahead_predictions[i, is_anomaly[i, ]]
+      y_residual[i, is_anomaly[i, ]] <- NA_real_
     }
-    
-    y_cleaned[i, is_anomaly[i, ]] <- step_ahead_predictions[i, is_anomaly[i, ]]
-    y_residual[i, is_anomaly[i, ]] <- NA_real_
   }
   
   step_ahead_loss <- apply(
@@ -243,9 +235,9 @@ learn_weights <- function(y,
       residuals = step_ahead_residuals[, best_alphas_idx, drop = TRUE],
       is_anomaly = is_anomaly[, best_alphas_idx, drop = TRUE],
       anomaly_bound_upper = step_ahead_predictions[, best_alphas_idx, drop = TRUE] +
-        3 * sd_cumulative[, best_alphas_idx, drop = TRUE],
+        anomaly_threshold * sd_cumulative[, best_alphas_idx, drop = TRUE],
       anomaly_bound_lower = step_ahead_predictions[, best_alphas_idx, drop = TRUE] -
-        3 * sd_cumulative[, best_alphas_idx, drop = TRUE],
+        anomaly_threshold * sd_cumulative[, best_alphas_idx, drop = TRUE],
       y = y,
       n = n,
       period_length = period_length,
@@ -294,4 +286,12 @@ predict_one_step_ahead_with_grid <- function(y, alphas_grid, n, period_length) {
   colSums(y * t(weight_grid))
   
   # matrix(data = y, nrow = 1) %*% t(weight_grid)
+}
+
+apply_sd <- function(x) {
+  # TODO: first non NaN sd is systematically 0
+  # TODO: implement numerically safe alternative
+  
+  # using `colSums` doesn't provide speed up as we have to count non-NAs
+  (colMeans(x^2, na.rm = TRUE) - colMeans(x, na.rm = TRUE)^2)^0.5
 }
