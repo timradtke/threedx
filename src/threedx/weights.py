@@ -1,5 +1,19 @@
 import numpy as np
 
+def _validate_alpha(alpha):
+    if not isinstance(alpha, float):
+        raise TypeError("`alpha` must have type float.")
+    if alpha < 0.0 or alpha > 1.0:
+        raise ValueError(
+            f"`alpha` must be a float in the range of [0., 1.], got {alpha}."
+        )
+
+def _validate_n(n):
+    if not isinstance(n, int):
+        raise TypeError("`alpha` must have type int.")
+    if n <= 0:
+        raise ValueError("`n` must be larger than zero.")
+
 def weights_exponential(
     alpha: float,
     n: int
@@ -39,6 +53,9 @@ def weights_exponential(
     >>> weights_exponential(alpha=0, n=4)
     array([0.25, 0.25, 0.25, 0.25])
     """
+    _validate_alpha(alpha=alpha)
+    _validate_n(n=n)
+
     if alpha == 0:
         return np.repeat(1. / n, n)
 

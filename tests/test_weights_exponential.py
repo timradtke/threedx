@@ -1,16 +1,15 @@
 import numpy as np
 import numpy.testing as npt
+import pytest
 from threedx.weights import weights_exponential
 
 def test_weights_exponential_returns_ndarray():
     assert isinstance(weights_exponential(alpha=0.5, n=5), np.ndarray)
-    assert isinstance(weights_exponential(alpha=0.5, n=0), np.ndarray)
     assert isinstance(weights_exponential(alpha=1., n=5), np.ndarray)
     assert isinstance(weights_exponential(alpha=0., n=5), np.ndarray)
 
 def test_weights_exponential_returns_array_of_shape_n():
     assert weights_exponential(alpha=0.5, n=5).shape == (5,)
-    assert weights_exponential(alpha=0.5, n=0).shape == (0,)
     assert weights_exponential(alpha=0.5, n=100).shape == (100,)
 
 def test_weights_exponential_sum_up_to_one():
@@ -90,3 +89,27 @@ def test_weights_exponential_returns_exponential_series():
     rescaled_subset_is_equal_to_short(alpha=0.823, n=8392, m=7002)
     rescaled_subset_is_equal_to_short(alpha=1.0, n=5, m=3)
     rescaled_subset_is_equal_to_short(alpha=0.0, n=72, m=60)
+
+def test_weights_exponential_throws_error_on_alpha_not_float():
+    with pytest.raises(TypeError):
+            weights_exponential(alpha=1, n=3)
+    with pytest.raises(TypeError):
+        weights_exponential(alpha="1.5", n=3)
+
+def test_weights_exponential_throws_error_on_alpha_not_in_range():
+    with pytest.raises(ValueError):
+        weights_exponential(alpha=-0.5, n=3)
+    with pytest.raises(ValueError):
+        weights_exponential(alpha=82., n=920)
+
+def test_weights_exponential_throws_error_on_n_not_int():
+    with pytest.raises(TypeError):
+        weights_exponential(alpha=1., n=3.)
+    with pytest.raises(TypeError):
+        weights_exponential(alpha=0.5, n="3")
+
+def test_weights_exponential_throws_error_on_n_less_than_one():
+    with pytest.raises(ValueError):
+        weights_exponential(alpha=0.5, n=0)
+    with pytest.raises(ValueError):
+        weights_exponential(alpha=0.5, n=-5)
