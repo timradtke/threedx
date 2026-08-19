@@ -67,7 +67,7 @@ def test_weights_exponential_returns_one_for_last_if_alpha_is_one():
         desired=np.array([0.0, 0.0, 1.0])
     )
 
-def test_weights_exponential_returns_average_for_each_if_alpha_is_zero():
+def test_weights_exponential_returns_uniform_for_each_if_alpha_is_zero():
     npt.assert_array_equal(
         actual=weights_exponential(alpha=0.0, n=3),
         desired=np.array([1./3., 1./3., 1./3.])

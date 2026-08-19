@@ -8,9 +8,9 @@ def _validate_alpha(alpha):
             f"`alpha` must be a float in the range of [0., 1.], got {alpha}."
         )
 
-def _validate_n(n):
+def _validate_positive_int(n):
     if not isinstance(n, int):
-        raise TypeError("`alpha` must have type int.")
+        raise TypeError("`n` must have type int.")
     if n <= 0:
         raise ValueError("`n` must be larger than zero.")
 
@@ -54,11 +54,97 @@ def weights_exponential(
     array([0.25, 0.25, 0.25, 0.25])
     """
     _validate_alpha(alpha=alpha)
-    _validate_n(n=n)
+    _validate_positive_int(n=n)
 
     if alpha == 0:
         return np.repeat(1. / n, n)
 
     weights = ((1 - alpha) ** np.arange(n)[::-1]) * alpha # in reverse order
+    weights = weights / weights.sum()
+    return weights
+
+def weights_seasonal(
+    alpha_seasonal: float,
+    n: int,
+    period_length: int
+) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+    """
+    Derive within-season exponential weights
+
+    A larger value of `alpha_seasonal` will assign larger weights to
+    observations closer to the most recent observation in terms of its relative
+    position in the seasonal period.
+
+    For example, if `period_length=12`, then the 12th most recent observation
+    has the highest possible weight, and the same weight as the 24th most recent
+    observation, and so on. The most recent observation has the second highest
+    weight and the same weight as the 11th and 13th most recent observations.
+
+    The weights are symmetric within a period, and each period is equal.
+
+    Parameters
+    ----------
+    alpha_seasonal
+        A scalar float between 0 and 1 that determines how quickly the weights
+        decay.
+    n
+        The number of weights to create, usually the number of observations in
+        a time series with which the weights are aligned.
+    period_length
+        Determines the length of the seasonal pattern. For annual seasonality in
+        monthly observations, use 12. For weekly seasonality in daily
+        observations, use 7. And so on.
+    
+    Returns
+    -------
+    A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
+
+    See Also
+    --------
+    weights_exponential, weights_seasonal_decay, weights_threedx
+
+    Examples
+    --------
+    >>> weights_seasonal(alpha_seasonal=0.5, n=7, period_length=7)
+    array([0.36363636, 0.18181818, 0.09090909, 0.04545455, 0.04545455,
+           0.09090909, 0.18181818])
+
+    >>> import numpy as np
+    >>> np.round(weights_seasonal(alpha_seasonal=0.9, n=16, period_length=7), 3)
+    array([0.004, 0.039,
+           0.392, 0.039, 0.004, 0.   , 0.   , 0.004, 0.039,
+           0.392, 0.039, 0.004, 0.   , 0.   , 0.004, 0.039])
+
+    >>> weights_seasonal(alpha_seasonal=1.0, n=4, period_length=4)
+    array([1., 0., 0., 0.])
+
+    >>> weights_seasonal(alpha_seasonal=0.0, n=4, period_length=4)
+    array([0.25, 0.25, 0.25, 0.25])
+    """
+    _validate_alpha(alpha=alpha_seasonal)
+    _validate_positive_int(n=n)
+    _validate_positive_int(n=period_length)
+
+    if alpha_seasonal == 1.0 and n < period_length:
+        return np.zeros(shape=(n,), dtype=np.float64)
+
+    n_left = (
+        np.ceil(period_length / 2) + (1 - np.ceil(period_length % 2))
+    ).astype(int).item() # convert the resulting np int scalar to python int
+
+    length_needed_right = period_length - n_left
+
+    weights_left = weights_exponential(alpha = alpha_seasonal, n = n_left)[::-1] # in reverse order
+    weights_right = weights_exponential(alpha = alpha_seasonal, n = n_left)[:-1] # not the last value
+
+    length_right = weights_right.shape[0]
+
+    weights___period = np.concatenate((
+        weights_left,
+        weights_right[(length_right - length_needed_right):length_right]
+    ))
+
+    weights = np.resize(weights___period[::-1], n)[::-1]
+
     weights = weights / weights.sum()
     return weights
