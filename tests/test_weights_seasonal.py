@@ -54,6 +54,12 @@ def test_weights_seasonal_sum_up_to_one():
         ),
         desired=np.float64(1.0)
     )
+    npt.assert_almost_equal(
+        actual=np.sum(
+            weights_seasonal(alpha=1.0, n=5, period_length=12)
+        ),
+        desired=np.float64(1.0)
+    )
 
 def test_weights_seasonal_returns_uniform_when_period_length_is_one():
     npt.assert_almost_equal(
@@ -116,18 +122,18 @@ def test_each_half_is_exponential():
         desired=weights_exponential(alpha=0.77, n=6)
     )
 
-def test_returns_zeros_when_n_less_than_period_length_and_alpha_is_one():
+def test_returns_uniform_when_n_lt_period_length_and_alpha_is_one():
     npt.assert_array_equal(
         actual=weights_seasonal(alpha=1.0, n=5, period_length=7),
-        desired=np.zeros(shape=(5,), dtype=np.float64)
+        desired=np.repeat(1/5, 5)
     )
     npt.assert_array_equal(
         actual=weights_seasonal(alpha=1.0, n=11, period_length=12),
-        desired=np.zeros(shape=(11,), dtype=np.float64)
+        desired=np.repeat(1/11, 11)
     )
     npt.assert_array_equal(
         actual=weights_seasonal(alpha=1.0, n=1, period_length=12),
-        desired=np.zeros(shape=(1,), dtype=np.float64)
+        desired=np.repeat(1.0, 1)
     )
 
 def test_weights_seasonal_throws_error_on_alpha_not_float():

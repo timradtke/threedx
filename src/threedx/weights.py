@@ -69,7 +69,7 @@ def weights_seasonal(
     period_length: int
 ) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
     """
-    Derive within-season exponential weights
+    Derive within-period exponential weights
 
     A larger value of `alpha` will assign larger weights to
     observations closer to the most recent observation in terms of its relative
@@ -125,8 +125,10 @@ def weights_seasonal(
     _validate_positive_int(n=n)
     _validate_positive_int(n=period_length)
 
-    if alpha == 1.0 and n < period_length:
-        return np.zeros(shape=(n,), dtype=np.float64)
+    if n < period_length and alpha == 1.0:
+        # Instead of returning an all-zero vector, return something reasonable
+        # that won't result in np.nan values later.
+        return np.ones(n, dtype=np.float64) / n
 
     n_left = (
         np.ceil(period_length / 2) + (1 - np.ceil(period_length % 2))
@@ -154,6 +156,64 @@ def weights_seasonal_decay(
     n: int,
     period_length: int
 ) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+    """
+    Derive cross-period exponential weights
+
+    Returns a numpy vector for which each value within a period has the same
+    weight and weights increase exponentially across periods.
+
+    In a sense, this function repeats every value returned by
+    `weights_exponential()` each `period_length` times.
+
+    Parameters
+    ----------
+    alpha
+        A scalar float between 0 and 1 that determines how quickly the weights
+        decay.
+    n
+        The number of weights to create, usually the number of observations in
+        a time series with which the weights are aligned.
+    period_length
+        Determines the length of the seasonal pattern. For annual seasonality in
+        monthly observations, use 12. For weekly seasonality in daily
+        observations, use 7. And so on.
+    
+    Returns
+    -------
+    A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
+
+    See Also
+    --------
+    weights_exponential, weights_seasonal, weights_threedx
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> np.round(weights_seasonal_decay(alpha=0.5, n=20, period_length=7), 4)
+    array([
+                0.0208, 0.0208, 0.0208, 0.0208, 0.0208, 0.0208,
+        0.0417, 0.0417, 0.0417, 0.0417, 0.0417, 0.0417, 0.0417,
+        0.0833, 0.0833, 0.0833, 0.0833, 0.0833, 0.0833, 0.0833
+    ])
+
+    >>> np.round(weights_seasonal_decay(alpha=1.0, n=30, period_length=12), 3)
+    array([
+        0.   , 0.   , 0.   , 0.   , 0.   , 0.   ,
+        0.   , 0.   , 0.   , 0.   , 0.   , 0.   ,
+        0.   , 0.   , 0.   , 0.   , 0.   , 0.   ,
+        0.083, 0.083, 0.083, 0.083, 0.083, 0.083,
+        0.083, 0.083, 0.083, 0.083, 0.083, 0.083
+    ])
+
+    >>> weights_seasonal_decay(alpha=1.0, n=4, period_length=12)
+    array([0.25, 0.25, 0.25, 0.25])
+
+    >>> weights_seasonal_decay(alpha=0.0, n=4, period_length=12)
+    array([0.25, 0.25, 0.25, 0.25])
+
+    >>> weights_seasonal_decay(alpha=0.0, n=10, period_length=4)
+    array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+    """
     _validate_alpha(alpha=alpha)
     _validate_positive_int(n=n)
     _validate_positive_int(n=period_length)
@@ -167,5 +227,142 @@ def weights_seasonal_decay(
     # Assign each weight to one of the periods, fill each period with it
     weights = np.repeat(weights__seasons, period_length)
     weights = weights[(weights.size - n):(weights.size)]
+    weights = weights / weights.sum()
+    return weights
+
+def weights_threedx(
+    alpha: float,
+    alpha_seasonal: float,
+    alpha_seasonal_decay: float,
+    n: int,
+    period_length: int
+) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+    """
+    Derive three-dimensional exponential weights
+
+    Parameters
+    ----------
+    alpha
+        A scalar float between 0 and 1 that determines how quickly the weights
+        decay.
+    alpha_seasonal
+        A scalar float between 0 and 1 that determines the within-period
+        weights.
+    alpha_seasonal_decay
+        A scalar float between 0 and 1 that determines how quickly the
+        cross-period weights decay.
+    n
+        The number of weights to create, usually the number of observations in
+        a time series with which the weights are aligned.
+    period_length
+        Determines the length of the seasonal pattern. For annual seasonality in
+        monthly observations, use 12. For weekly seasonality in daily
+        observations, use 7. And so on.
+    
+    Returns
+    -------
+    A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
+
+    See Also
+    --------
+    weights_exponential, weights_seasonal, weights_seasonal_decay
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> np.round(weights_threedx(
+            alpha=0.0,
+            alpha_seasonal=0.5,
+            alpha_seasonal_decay=0.1,
+            n=21,
+            period_length=7
+        ), 4)
+    array([
+        0.1087, 0.0543, 0.0272, 0.0136, 0.0136, 0.0272, 0.0543,
+        0.1208, 0.0604, 0.0302, 0.0151, 0.0151, 0.0302, 0.0604,
+        0.1342, 0.0671, 0.0335, 0.0168, 0.0168, 0.0335, 0.0671
+    ])
+
+    >>> np.round(weights_threedx(
+            alpha=0.1,
+            alpha_seasonal=0.8,
+            alpha_seasonal_decay=0.0,
+            n=21,
+            period_length=7
+        ), 4)
+    array([
+        0.0771, 0.0171, 0.0038, 0.0008, 0.0009, 0.0052, 0.029 ,
+        0.1611, 0.0358, 0.008 , 0.0018, 0.002 , 0.0109, 0.0606,
+        0.3369, 0.0749, 0.0166, 0.0037, 0.0041, 0.0228, 0.1268
+    ])
+
+    >>> weights_threedx(
+            alpha=0.0,
+            alpha_seasonal=0.0,
+            alpha_seasonal_decay=0.0,
+            n=4,
+            period_length=12
+        )
+    array([0.25, 0.25, 0.25, 0.25])
+
+    >>> weights_threedx(
+            alpha=0.0,
+            alpha_seasonal=1.0,
+            alpha_seasonal_decay=1.0,
+            n=12,
+            period_length=4
+        )
+    array([
+        0., 0., 0., 0.,
+        0., 0., 0., 0.,
+        1., 0., 0., 0.
+    ])
+
+    >>> np.round(weights_threedx(
+            alpha=0.0,
+            alpha_seasonal=1.0,
+            alpha_seasonal_decay=0.0,
+            n=12,
+            period_length=4
+        ), 3)
+    array([
+        0.333, 0.   , 0.   , 0.   ,
+        0.333, 0.   , 0.   , 0.   ,
+        0.333, 0.   , 0.   , 0.   
+    ])
+
+    >>> np.round(weights_threedx(
+            alpha=0.0,
+            alpha_seasonal=0.0,
+            alpha_seasonal_decay=0.5,
+            n=12,
+            period_length=4
+        ), 3)
+    array([
+        0.036, 0.036, 0.036, 0.036,
+        0.071, 0.071, 0.071, 0.071,
+        0.143, 0.143, 0.143, 0.143
+    ])
+    """
+    _validate_alpha(alpha=alpha)
+    if alpha == 1.0:
+        return weights_exponential(alpha=1.0, n=n)
+
+    weights = \
+        weights_exponential(
+            alpha = alpha,
+            n = n
+        ) * \
+        weights_seasonal(
+            alpha = alpha_seasonal,
+            n = n,
+            period_length = period_length
+        ) * \
+        weights_seasonal_decay(
+            alpha = alpha_seasonal_decay,
+            n = n,
+            period_length = period_length
+        )
+    
     weights = weights / weights.sum()
     return weights

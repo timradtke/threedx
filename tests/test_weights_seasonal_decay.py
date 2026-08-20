@@ -54,6 +54,12 @@ def test_weights_seasonal_sum_up_to_one():
         ),
         desired=np.float64(1.0)
     )
+    npt.assert_almost_equal(
+        actual=np.sum(
+            weights_seasonal_decay(alpha=1.0, n=5, period_length=12)
+        ),
+        desired=np.float64(1.0)
+    )
 
 def test_returns_uniform_when_period_length_is_one_and_alpha_is_zero():
     npt.assert_almost_equal(
