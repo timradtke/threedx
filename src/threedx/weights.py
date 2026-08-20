@@ -64,14 +64,14 @@ def weights_exponential(
     return weights
 
 def weights_seasonal(
-    alpha_seasonal: float,
+    alpha: float,
     n: int,
     period_length: int
 ) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
     """
     Derive within-season exponential weights
 
-    A larger value of `alpha_seasonal` will assign larger weights to
+    A larger value of `alpha` will assign larger weights to
     observations closer to the most recent observation in terms of its relative
     position in the seasonal period.
 
@@ -84,7 +84,7 @@ def weights_seasonal(
 
     Parameters
     ----------
-    alpha_seasonal
+    alpha
         A scalar float between 0 and 1 that determines how quickly the weights
         decay.
     n
@@ -105,27 +105,27 @@ def weights_seasonal(
 
     Examples
     --------
-    >>> weights_seasonal(alpha_seasonal=0.5, n=7, period_length=7)
+    >>> weights_seasonal(alpha=0.5, n=7, period_length=7)
     array([0.36363636, 0.18181818, 0.09090909, 0.04545455, 0.04545455,
            0.09090909, 0.18181818])
 
     >>> import numpy as np
-    >>> np.round(weights_seasonal(alpha_seasonal=0.9, n=16, period_length=7), 3)
+    >>> np.round(weights_seasonal(alpha=0.9, n=16, period_length=7), 3)
     array([0.004, 0.039,
            0.392, 0.039, 0.004, 0.   , 0.   , 0.004, 0.039,
            0.392, 0.039, 0.004, 0.   , 0.   , 0.004, 0.039])
 
-    >>> weights_seasonal(alpha_seasonal=1.0, n=4, period_length=4)
+    >>> weights_seasonal(alpha=1.0, n=4, period_length=4)
     array([1., 0., 0., 0.])
 
-    >>> weights_seasonal(alpha_seasonal=0.0, n=4, period_length=4)
+    >>> weights_seasonal(alpha=0.0, n=4, period_length=4)
     array([0.25, 0.25, 0.25, 0.25])
     """
-    _validate_alpha(alpha=alpha_seasonal)
+    _validate_alpha(alpha=alpha)
     _validate_positive_int(n=n)
     _validate_positive_int(n=period_length)
 
-    if alpha_seasonal == 1.0 and n < period_length:
+    if alpha == 1.0 and n < period_length:
         return np.zeros(shape=(n,), dtype=np.float64)
 
     n_left = (
@@ -134,8 +134,8 @@ def weights_seasonal(
 
     length_needed_right = period_length - n_left
 
-    weights_left = weights_exponential(alpha = alpha_seasonal, n = n_left)[::-1] # in reverse order
-    weights_right = weights_exponential(alpha = alpha_seasonal, n = n_left)[:-1] # not the last value
+    weights_left = weights_exponential(alpha = alpha, n = n_left)[::-1] # in reverse order
+    weights_right = weights_exponential(alpha = alpha, n = n_left)[:-1] # not the last value
 
     length_right = weights_right.shape[0]
 
@@ -146,5 +146,26 @@ def weights_seasonal(
 
     weights = np.resize(weights___period[::-1], n)[::-1]
 
+    weights = weights / weights.sum()
+    return weights
+
+def weights_seasonal_decay(
+    alpha: float,
+    n: int,
+    period_length: int
+) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+    _validate_alpha(alpha=alpha)
+    _validate_positive_int(n=n)
+    _validate_positive_int(n=period_length)
+
+    # Get as many weights as there are periods (n/period_length)
+    weights__seasons = weights_exponential(
+        alpha = alpha,
+        n = np.ceil(n / period_length).astype(int).item()
+    )
+
+    # Assign each weight to one of the periods, fill each period with it
+    weights = np.repeat(weights__seasons, period_length)
+    weights = weights[(weights.size - n):(weights.size)]
     weights = weights / weights.sum()
     return weights
