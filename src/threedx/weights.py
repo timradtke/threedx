@@ -1,5 +1,11 @@
 import numpy as np
 
+def _validate_positive_int(n):
+    if not isinstance(n, int):
+        raise TypeError("`n` must have type int.")
+    if n <= 0:
+        raise ValueError("`n` must be larger than zero.")
+
 def _validate_alpha(alpha):
     if not isinstance(alpha, float):
         raise TypeError("`alpha` must have type float.")
@@ -8,11 +14,14 @@ def _validate_alpha(alpha):
             f"`alpha` must be a float in the range of [0., 1.], got {alpha}."
         )
 
-def _validate_positive_int(n):
-    if not isinstance(n, int):
-        raise TypeError("`n` must have type int.")
-    if n <= 0:
-        raise ValueError("`n` must be larger than zero.")
+def _validate_alphas(alphas):
+    if not isinstance(alphas, np.ndarray[tuple[int], np.dtype[np.float64]]):
+        raise TypeError("`n` must be an float64 ndarray of shape (int, ).")
+    if (np.sum(alphas < 0.) > 0) | (np.sum(alphas > 1.) > 0):
+        raise ValueError(
+            f"Each `alpha` in `alphas` must be a float in the range of [0., 1.]."
+        )
+
 
 def weights_exponential(
     alpha: float,
@@ -365,4 +374,123 @@ def weights_threedx(
         )
     
     weights = weights / weights.sum()
+    return weights
+
+def _sum_each_row_to_one(
+    weights: np.ndarray[tuple[int, int], np.dtype[np.float64]]
+) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    """
+    Standardize rows to sum to one
+
+    Takes a two-dimensional numpy array, ensures the rows each sum to
+    one, and returns it.
+    """
+    row_sums = weights.sum(axis = 1)
+    weights = weights / np.tile(row_sums, (weights.shape[1], 1)).T
+    return weights
+
+def _weights_exponential_vec(
+    alphas: np.ndarray[tuple[int], np.dtype[np.float64]],
+    n: int
+) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    """
+    Returns a matrix where each row consists of exponential weights, and rows
+    differ by their smoothing factor.
+
+    Parameters
+    ----------
+    alphas
+        A one-dimensional numpy array of floats in the range from 0 to 1. Its
+        shape determines the number of rows of the returned matrix.
+    n
+        The number of weights to create, usually the number of observations in
+        a time series with which the weights are aligned.
+        Corresponds to the number of columns.
+    
+    Returns
+    -------
+    A numpy array of shape `(alphas.size, n)` with float values between 0 and 1
+    that sum up to 1.
+    """
+    # m_an_: A matrix with a rows and n columns, where a=alphas.size and n=n
+    
+    m_an_alphas = np.tile(alphas, (n, 1)).T
+    m_an_one_minus_alphas = np.tile((1-alphas), (n, 1)).T
+    m_an_exponents = np.tile(np.arange(n)[::-1], (alphas.size, 1))
+
+    m_an_weights = (m_an_one_minus_alphas ** m_an_exponents) * m_an_alphas
+    m_an_weights[m_an_alphas == 0, ] = 1.0 / n
+
+    m_an_weights = _sum_each_row_to_one(m_an_weights)
+    return m_an_weights
+
+def _weights_seasonal_vec(
+    alphas: np.ndarray[tuple[int], np.dtype[np.float64]],
+    n: int,
+    period_length: int
+) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    """
+    Returns a matrix where each row consists of seasonal exponential weights,
+    and rows differ by their smoothing factor.
+
+    Parameters
+    ----------
+    alphas
+        A one-dimensional numpy array of floats in the range from 0 to 1. Its
+        shape determines the number of rows of the returned matrix.
+    n
+        The number of weights to create, usually the number of observations in
+        a time series with which the weights are aligned.
+        Corresponds to the number of columns.
+    
+    Returns
+    -------
+    A numpy array of shape `(alphas.size, n)` with float values between 0 and 1
+    that sum up to 1.
+    """
+    seasons = np.ceil(n / period_length).astype(int)
+
+    # The construction of weights works by first constructing weights for a
+    # single period and then repeating that period to get to `n` weights.
+
+    # To construct a single period, we need to know how many observations are on
+    # the left half and how many are on the right half. The left half breaks
+    # ties in the middle when the `period_length` is odd.
+    n_left = (
+        np.ceil(period_length / 2) + # 3 when period_length is 7, 6 when 12, ...
+        (1 - np.ceil(period_length % 2)) # 0 when 7, 1 when 12, ...
+    ).astype(int).item()
+
+    # 4 when period_length is 7, 5 when period_length is 12, ...
+    length_needed_right = period_length - n_left
+
+    weights_base = _weights_exponential_vec(alphas=alphas, n=n_left)
+    # The maximum weight is always at first position in the period (i.e., it's
+    # `period_length` away from the most recent observation). Thus drop the
+    # maximum for `weights_right`, but keep it for `weights_left`.
+    weights_right = weights_base[::, :-1] # all but last
+    weights_left = weights_base[::, ::-1] # reverse order
+
+    length_right = weights_right.shape[1]
+    weights = np.concatenate((
+        weights_left,
+        weights_right[::, (length_right - length_needed_right):length_right]
+    ), axis = 1)
+
+    # The `dummy` matrix is used to repeat the individual period matrix
+    # `weights` as often as necessary to return `n` columns.
+    dummy = np.tile(np.eye(period_length), reps = (1, seasons))
+    dummy = dummy[::, (seasons * period_length - n):(seasons * period_length)]
+
+    weights = weights @ dummy # Perhaps more efficient than a for loop?
+
+    # If less than an entire period, and any alpha in alphas is equal to one,
+    # overwrite the weights so that they turn out to be uniform. This follows
+    # the behavior of `weights_seasonal()` and avoids np.nan when resulting 
+    # weights are combined with weights from `_weights_exponential_vec()`.
+    if n < period_length and (np.sum(alphas == 1.) > 0):
+        weights[alphas == 1., ::] = 1. # will be standardized in the next line
+
+    weights = _sum_each_row_to_one(weights)
+
     return weights
