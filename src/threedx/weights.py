@@ -22,6 +22,20 @@ def _validate_alphas(alphas):
             f"Each `alpha` in `alphas` must be a float in the range of [0., 1.]."
         )
 
+def _validate_alphas_are_aligned(
+    alphas,
+    alphas_seasonal,
+    alphas_seasonal_decay
+):
+    if alphas.shape[0] != alphas_seasonal.shape[0]:
+        raise ValueError(
+            "The shape of `alphas` and `alphas_seasonal` must be aligned."
+        )
+    if alphas.shape[0] != alphas_seasonal_decay.shape[0]:
+        raise ValueError(
+            "The shape of `alphas` and `alphas_seasonal_decay` must be aligned."
+        )
+
 def weights_exponential(
     alpha: float,
     n: int
@@ -441,6 +455,10 @@ def _weights_seasonal_vec(
         The number of weights to create, usually the number of observations in
         a time series with which the weights are aligned.
         Corresponds to the number of columns.
+    period_length
+        Determines the length of the seasonal pattern. For annual seasonality in
+        monthly observations, use 12. For weekly seasonality in daily
+        observations, use 7. And so on.
     
     Returns
     -------
@@ -512,6 +530,10 @@ def _weights_seasonal_decay_vec(
         The number of weights to create, usually the number of observations in
         a time series with which the weights are aligned.
         Corresponds to the number of columns.
+    period_length
+        Determines the length of the seasonal pattern. For annual seasonality in
+        monthly observations, use 12. For weekly seasonality in daily
+        observations, use 7. And so on.
     
     Returns
     -------
@@ -540,3 +562,64 @@ def _weights_seasonal_decay_vec(
     weights = _sum_each_row_to_one(weights)
 
     return weights
+
+def _weights_threedx_vec(
+    alphas:np.ndarray[tuple[int], np.dtype[np.float64]],
+    alphas_seasonal: np.ndarray[tuple[int], np.dtype[np.float64]],
+    alphas_seasonal_decay: np.ndarray[tuple[int], np.dtype[np.float64]],
+    n: int,
+    period_length: int
+) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    """
+    Returns a matrix where each row consists of three-dimensional
+    exponential weights, and rows differ by their smoothing factor.
+
+    Parameters
+    ----------
+    alphas
+        A one-dimensional numpy array of floats in the range from 0 to 1. Its
+        shape determines the number of rows of the returned matrix.
+    alphas_seasonal
+        A one-dimensional numpy array of floats in the range from 0 to 1. Its
+        shape determines the number of rows of the returned matrix.
+        Must have the same shape as `alphas`.
+    alphas_seasonal_decay
+        A one-dimensional numpy array of floats in the range from 0 to 1. Its
+        shape determines the number of rows of the returned matrix.
+        Must have the same shape as `alphas`.
+    n
+        The number of weights to create, usually the number of observations in
+        a time series with which the weights are aligned.
+        Corresponds to the number of columns.
+    period_length
+        Determines the length of the seasonal pattern. For annual seasonality in
+        monthly observations, use 12. For weekly seasonality in daily
+        observations, use 7. And so on.
+    
+    Returns
+    -------
+    A numpy array of shape `(alphas.size, n)` with float values between 0 and 1
+    that sum up to 1.
+    """
+    weights_exponential = _weights_exponential_vec(alphas=alphas, n=n) 
+
+    weights = \
+        weights_exponential * \
+        _weights_seasonal_vec(
+            alphas=alphas_seasonal,
+            n=n,
+            period_length = period_length
+        ) * \
+        _weights_seasonal_decay_vec(
+            alphas=alphas_seasonal_decay,
+            n = n,
+            period_length=period_length
+        )
+
+    # Same behavior as `weights_threedx()`; protects against edge cases where
+    # alphas=1 and alphas_seasonal=1 cancel each other out and result in nan.
+    weights[alphas == 1., ::] = weights_exponential[alphas == 1., ::]
+    
+    weights = _sum_each_row_to_one(weights)
+
+    return(weights)
