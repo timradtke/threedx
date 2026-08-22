@@ -22,7 +22,6 @@ def _validate_alphas(alphas):
             f"Each `alpha` in `alphas` must be a float in the range of [0., 1.]."
         )
 
-
 def weights_exponential(
     alpha: float,
     n: int
@@ -430,8 +429,8 @@ def _weights_seasonal_vec(
     period_length: int
 ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     """
-    Returns a matrix where each row consists of seasonal exponential weights,
-    and rows differ by their smoothing factor.
+    Returns a matrix where each row consists of within-period seasonal
+    exponential weights, and rows differ by their smoothing factor.
 
     Parameters
     ----------
@@ -491,6 +490,53 @@ def _weights_seasonal_vec(
     if n < period_length and (np.sum(alphas == 1.) > 0):
         weights[alphas == 1., ::] = 1. # will be standardized in the next line
 
+    weights = _sum_each_row_to_one(weights)
+
+    return weights
+
+def _weights_seasonal_decay_vec(
+    alphas: np.ndarray[tuple[int], np.dtype[np.float64]],
+    n: int,
+    period_length: int
+) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    """
+    Returns a matrix where each row consists of cross-period seasonal
+    exponential weights, and rows differ by their smoothing factor.
+
+    Parameters
+    ----------
+    alphas
+        A one-dimensional numpy array of floats in the range from 0 to 1. Its
+        shape determines the number of rows of the returned matrix.
+    n
+        The number of weights to create, usually the number of observations in
+        a time series with which the weights are aligned.
+        Corresponds to the number of columns.
+    
+    Returns
+    -------
+    A numpy array of shape `(alphas.size, n)` with float values between 0 and 1
+    that sum up to 1.
+    """
+    # Constructs weights by first deriving the weights that were necessary if
+    # period_length was 1. Then repeats each of these weights period_length
+    # times to fill each period with one of the weights respectively.
+    
+    n_periods = np.ceil(n / period_length).astype(int)
+    weights = _weights_exponential_vec(
+        alphas = alphas,
+        n = n_periods # One (different) weight per period
+    )
+
+    # `dummy` matrix that will be used to repeat `weights` for each period
+    dummy = np.eye(n_periods, dtype = int)
+    seasonal_dummy = np.repeat(dummy, repeats = period_length, axis = 1)
+
+    # "Shorten" the matrix to get to length `n`:
+    n_available = seasonal_dummy.shape[1]
+    seasonal_dummy = seasonal_dummy[::, (n_available - n):(n_available)]
+
+    weights = weights @ seasonal_dummy
     weights = _sum_each_row_to_one(weights)
 
     return weights
