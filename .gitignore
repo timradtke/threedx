@@ -10,3 +10,4 @@ wheels/
 .venv
 
 NOTES.md
+*.ipynb
