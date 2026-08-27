@@ -29,7 +29,8 @@ class Threedx():
     def initialize_parameters(
         self,
         size: int = 1000,
-        seed: int = None
+        seed: int = None,
+        include_edge_cases: bool = True,
     ):
         """
         Initialize the parameter set to be searched during model training.
@@ -41,12 +42,41 @@ class Threedx():
         seed
             An integer seed used during random number generation, default
             `None`.
+        include_edge_cases
+            A boolean indicating whether the parameter grid should include the
+            edge cases where parameters equal 0 or 1 and result in Naive, Mean,
+            Seasonal Naive, or the Latest Period Average methods. `True` by
+            default.
         """
+
+        # 1) Naive
+        # 2) Mean
+        # 3) Seasonal Average
+        # 4) Seasonal Naive
+        # 5) Latest Period Average
+        a_edge = np.array([1.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float64)
+        b_edge = np.array([0.0, 0.0, 1.0, 1.0, 0.0], dtype=np.float64)
+        c_edge = np.array([0.0, 0.0, 0.0, 1.0, 1.0], dtype=np.float64)
+
+        if size >= 5 and include_edge_cases:
+            size = size - 5
 
         rng = np.random.default_rng(seed = seed)
         self.alphas = rng.beta(a = 1, b = 1, size = size)
         self.alphas_seasonal = rng.beta(a = 1, b = 1, size = size)
         self.alphas_seasonal_decay = rng.beta(a = 1, b = 1, size = size)
+
+        if size >= 5 and include_edge_cases:
+            self.alphas = np.hstack(
+                (a_edge, self.alphas)
+            )
+            self.alphas_seasonal = np.hstack(
+                (b_edge, self.alphas_seasonal)
+            )
+            self.alphas_seasonal_decay = np.hstack(
+                (c_edge, self.alphas_seasonal_decay)
+            )
+
         self.parameter_grid_is_initialized = True
         return self
 
