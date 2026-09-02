@@ -62,10 +62,10 @@ class Threedx():
         if size >= 5 and include_edge_cases:
             size = size - 5
 
-        rng = np.random.default_rng(seed = seed)
-        self.alphas = rng.beta(a = 1, b = 1, size = size)
-        self.alphas_seasonal = rng.beta(a = 1, b = 1, size = size)
-        self.alphas_seasonal_decay = rng.beta(a = 1, b = 1, size = size)
+        rng = np.random.default_rng(seed=seed)
+        self.alphas = rng.beta(a=1, b=2, size=size)
+        self.alphas_seasonal = rng.beta(a=1, b=1, size=size)
+        self.alphas_seasonal_decay = rng.beta(a=1, b=1, size=size)
 
         if size >= 5 and include_edge_cases:
             self.alphas = np.hstack(
