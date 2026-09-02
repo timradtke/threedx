@@ -1,10 +1,6 @@
 import numpy as np
 from numpy.random import Generator
-from collections.abc import Sequence
-from typing import Any, Protocol, SupportsIndex, Union
-
-# https://github.com/numpy/numpy/blob/main/numpy/_typing/_shape.py
-_ShapeLike = Union[SupportsIndex, Sequence[SupportsIndex]]
+from typing import Any, Protocol
 
 class Draw(Protocol):
     def __call__(
