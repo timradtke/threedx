@@ -564,7 +564,7 @@ def _weights_seasonal_decay_vec(
     return weights
 
 def _weights_threedx_vec(
-    alphas:np.ndarray[tuple[int], np.dtype[np.float64]],
+    alphas: np.ndarray[tuple[int], np.dtype[np.float64]],
     alphas_seasonal: np.ndarray[tuple[int], np.dtype[np.float64]],
     alphas_seasonal_decay: np.ndarray[tuple[int], np.dtype[np.float64]],
     n: int,
