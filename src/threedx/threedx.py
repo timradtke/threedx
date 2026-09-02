@@ -1,5 +1,6 @@
 import numpy as np
 from typing import Any
+from warnings import warn
 from .innovations import Draw
 from .loss import Loss
 from .weights import _weights_threedx_vec, weights_threedx
@@ -116,6 +117,23 @@ class Threedx():
             numpy vectors of equal length. From those two vectors, the loss
             should be calculated and returned as a float.
         """
+        if y.size <= self.period_length:
+            raise ValueError(
+                f"The provided time series has {y.size} observations but "
+                f"Threedx requires at least {(1 + self.period_length)=} "
+                f"observations."
+            )
+
+        if y.size <= 2*self.period_length:
+            warn(
+                message = (
+                    "You are fitting a model onto not more than two periods of "
+                    "data. Optimal parameters will easily vary if one of the "
+                    "observations changes or when another observation is added."
+                ),
+                category=RuntimeWarning,
+            )
+
         if not self.parameter_grid_is_initialized:
            return None
         
@@ -201,6 +219,15 @@ class Threedx():
         rng = np.random.default_rng(seed = seed)
 
         if observation_driven:
+            if self.y.size < (2 * self.period_length):
+                warn(
+                    message=(
+                        "You are sampling based on less than "
+                        f"{(2 * self.period_length)=} of observations. "
+                        "Check results carefully."
+                    ),
+                    category=RuntimeWarning,
+                )
             y_hat_m = _predict_observation_driven(
                 horizon=horizon,
                 n_samples=n_samples,
@@ -212,6 +239,16 @@ class Threedx():
                 rng=rng
             )
         else:
+            if self.residuals.size < self.period_length:
+                warn(
+                    message=(
+                        "You are sampling based on less than "
+                       f"{self.period_length=} residuals. "
+                       "Check results carefully."
+                    ),
+                    category=RuntimeWarning,
+                )
+
             y_hat_m = _predict_innovations_driven(
                 horizon=horizon,
                 n_samples=n_samples,
