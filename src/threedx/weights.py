@@ -1,10 +1,10 @@
 import numpy as np
 
-def _validate_positive_int(n):
+def _validate_positive_int(n, name="n"):
     if not isinstance(n, int):
-        raise TypeError("`n` must have type int.")
+        raise TypeError(f"`{name}` must have type int.")
     if n <= 0:
-        raise ValueError("`n` must be larger than zero.")
+        raise ValueError(f"`{name}` must be larger than zero.")
 
 def _validate_alpha(alpha):
     if not isinstance(alpha, float):

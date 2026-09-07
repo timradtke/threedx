@@ -1,14 +1,23 @@
 import numpy as np
+from collections.abc import Callable
+from enum import Enum
 from typing import Any
 from warnings import warn
+
+from .initialize import _validate_parameter_grid
 from .innovations import Draw
 from .loss import Loss
-from .weights import _weights_threedx_vec, weights_threedx
+from .weights import (
+    _weights_threedx_vec,
+    weights_threedx,
+    _validate_positive_int
+)
 
 class Threedx():
     def __init__(
         self,
-        period_length: int
+        period_length: int,
+        parameter_grid: np.ndarray[tuple[int, int], np.dtype[np.float64]],
     ):
         """
         A three-dimensional exponential smoothing model.
@@ -20,66 +29,18 @@ class Threedx():
             seasonality in monthly observations, use 12. For weekly seasonality
             in daily observations, use 7. And so on.
         """
+        _validate_positive_int(n=period_length, name="period_length")
+        _validate_parameter_grid(grid=parameter_grid)
+
         # Define the `period_length` upfront for the entire
         # object to ensure consistency across all methods;
-        # the period length should not vary across method calls.
+        # the period length must not vary across method calls.
         self.period_length = period_length
-        self.parameter_grid_is_initialized = False
         self.is_fitted = False
 
-    def initialize_parameters(
-        self,
-        size: int = 1000,
-        seed: int = None,
-        include_edge_cases: bool = True,
-    ):
-        """
-        Initialize the parameter set to be searched during model training.
-
-        Parameters
-        ----------
-        size
-            An integer number of parameter combinations to generate.
-        seed
-            An integer seed used during random number generation, default
-            `None`.
-        include_edge_cases
-            A boolean indicating whether the parameter grid should include the
-            edge cases where parameters equal 0 or 1 and result in Naive, Mean,
-            Seasonal Naive, or the Latest Period Average methods. `True` by
-            default.
-        """
-
-        # 1) Naive
-        # 2) Mean
-        # 3) Seasonal Average
-        # 4) Seasonal Naive
-        # 5) Latest Period Average
-        a_edge = np.array([1.0, 0.0, 0.0, 0.0, 0.0], dtype=np.float64)
-        b_edge = np.array([0.0, 0.0, 1.0, 1.0, 0.0], dtype=np.float64)
-        c_edge = np.array([0.0, 0.0, 0.0, 1.0, 1.0], dtype=np.float64)
-
-        if size >= 5 and include_edge_cases:
-            size = size - 5
-
-        rng = np.random.default_rng(seed=seed)
-        self.alphas = rng.beta(a=1, b=2, size=size)
-        self.alphas_seasonal = rng.beta(a=1, b=1, size=size)
-        self.alphas_seasonal_decay = rng.beta(a=1, b=1, size=size)
-
-        if size >= 5 and include_edge_cases:
-            self.alphas = np.hstack(
-                (a_edge, self.alphas)
-            )
-            self.alphas_seasonal = np.hstack(
-                (b_edge, self.alphas_seasonal)
-            )
-            self.alphas_seasonal_decay = np.hstack(
-                (c_edge, self.alphas_seasonal_decay)
-            )
-
-        self.parameter_grid_is_initialized = True
-        return self
+        self.alphas = parameter_grid[:, 0]
+        self.alphas_seasonal = parameter_grid[:, 1]
+        self.alphas_seasonal_decay = parameter_grid[:, 2]
 
     def weights(self) -> np.ndarray[tuple[int], np.dtype[np.float64]] | None:
         """
@@ -133,9 +94,6 @@ class Threedx():
                 ),
                 category=RuntimeWarning,
             )
-
-        if not self.parameter_grid_is_initialized:
-           return None
         
         self.y = y
         self.n = y.size
@@ -185,7 +143,7 @@ class Threedx():
         observation_driven: bool,
         draw: Draw,
         seed: int = None
-    ) -> np.ndarray[tuple[int, int], np.dtype[Any]]:
+    ) -> np.ndarray[tuple[int, int], np.dtype[Any]] | None:
         """
         Predict sample paths from the fitted model.
 
