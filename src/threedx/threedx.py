@@ -78,6 +78,9 @@ class Threedx():
             numpy vectors of equal length. From those two vectors, the loss
             should be calculated and returned as a float.
         """
+        # TODO:
+        # _validate_y(y=y)
+
         if y.size <= self.period_length:
             raise ValueError(
                 f"The provided time series has {y.size} observations but "
@@ -94,46 +97,38 @@ class Threedx():
                 ),
                 category=RuntimeWarning,
             )
-        
+
         self.y = y
         self.n = y.size
-        
-        offset = self.period_length
 
-        one_step_ahead_predictions = _nans(shape = (self.n, self.alphas.size))
-
-        for i_steps_back in range(self.n - offset):
-            tmp_weights = _weights_threedx_vec(
-                alphas = self.alphas,
-                alphas_seasonal = self.alphas_seasonal,
-                alphas_seasonal_decay = self.alphas_seasonal_decay,
-                n = self.n - i_steps_back - 1,
-                period_length = self.period_length
+        grid_of_predictions = \
+            _calculate_grid_of_one_step_ahead_predictions(
+                y=y,
+                period_length=self.period_length,
+                alphas=self.alphas,
+                alphas_seasonal=self.alphas_seasonal,
+                alphas_seasonal_decay=self.alphas_seasonal_decay,
             )
 
-            tmp_y = self.y[:(self.n - i_steps_back - 1)]
-            one_step_ahead_predictions[self.n - i_steps_back - 1] = \
-                tmp_y @ tmp_weights.T
-        
-        step_ahead_loss = np.apply_along_axis(
-            func1d = loss,
-            axis = 0,
-            arr = one_step_ahead_predictions[offset:self.n],
-            y = y[offset:self.n]
+        self.losses = _evaluate_loss_on_grid_of_predictions(
+            loss=loss,
+            y=y,
+            grid_of_one_step_ahead_predictions=grid_of_predictions,
+            period_length=self.period_length,
         )
 
-        best_alphas_idx = np.argmin(step_ahead_loss)
+        self.minimal_loss = np.min(self.losses)
+        best_alphas_idx = np.argmin(self.losses)
 
-        self.residuals = y[offset:self.n] - \
-            one_step_ahead_predictions[offset:self.n, best_alphas_idx]
+        self.residuals = y[self.period_length:self.n] - \
+            grid_of_predictions[self.period_length:self.n, best_alphas_idx]
 
         self.best_alpha = self.alphas[best_alphas_idx]
         self.best_alpha_seasonal = self.alphas_seasonal[best_alphas_idx]
         self.best_alpha_seasonal_decay = \
             self.alphas_seasonal_decay[best_alphas_idx]
-        self.best_loss = np.min(step_ahead_loss)
-        self.is_fitted = True
 
+        self.is_fitted = True
         return self
 
     def predict(
@@ -341,3 +336,47 @@ def _validate_innovations_matrix(m, n_samples, horizon):
             {(n_samples, horizon)=} but has shape {m.shape}.
             """
         )
+    return None
+
+def _calculate_grid_of_one_step_ahead_predictions(
+    y: np.ndarray[tuple[int], np.dtype[np.float64]],
+    period_length: int,
+    alphas: np.ndarray[tuple[int], np.dtype[np.float64]],
+    alphas_seasonal: np.ndarray[tuple[int], np.dtype[np.float64]],
+    alphas_seasonal_decay: np.ndarray[tuple[int], np.dtype[np.float64]],
+) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    n = y.size
+    offset = period_length
+
+    one_step_ahead_predictions = _nans(shape = (n, alphas.size))
+    
+    for i_steps_back in range(y.size - offset):
+        tmp_weights = _weights_threedx_vec(
+            alphas = alphas,
+            alphas_seasonal = alphas_seasonal,
+            alphas_seasonal_decay = alphas_seasonal_decay,
+            n = n - i_steps_back - 1,
+            period_length = period_length
+        )
+
+        tmp_y = y[:(n - i_steps_back - 1)]
+        one_step_ahead_predictions[n - i_steps_back - 1] = \
+            tmp_y @ tmp_weights.T
+
+    return one_step_ahead_predictions
+
+def _evaluate_loss_on_grid_of_predictions(
+    loss: Loss,
+    y: np.ndarray[tuple[int], np.dtype[np.float64]],
+    grid_of_one_step_ahead_predictions: \
+        np.ndarray[tuple[int, int], np.dtype[np.float64]],
+    period_length: int,
+) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+    n = y.size
+    step_ahead_loss = np.apply_along_axis(
+        func1d = loss,
+        axis = 0,
+        arr = grid_of_one_step_ahead_predictions[period_length:n],
+        y = y[period_length:n]
+    )
+    return step_ahead_loss
