@@ -345,6 +345,19 @@ def _calculate_grid_of_one_step_ahead_predictions(
     alphas_seasonal: np.ndarray[tuple[int], np.dtype[np.float64]],
     alphas_seasonal_decay: np.ndarray[tuple[int], np.dtype[np.float64]],
 ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    """
+    Calculate one-step-ahead training predictions for parameter combinations.
+
+    Iterates over the time series `y` to calculate one-step-ahead predictions
+    for each of the parameter combinations.
+    Returns a matrix where each column represents a parameter combination. There
+    are as many rows as there are observations in `y`.
+
+    The values in row `i` aim to predict the i-th observation in `y`.
+
+    The first `period_length` rows are `np.nan` as there are not sufficient
+    observations to derive predictions.
+    """
     n = y.size
     offset = period_length
 
@@ -372,6 +385,20 @@ def _evaluate_loss_on_grid_of_predictions(
         np.ndarray[tuple[int, int], np.dtype[np.float64]],
     period_length: int,
 ) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+    """
+    Evaluate loss function on predictions from parameter combinations.
+
+    Given a matrix of one-step-ahead predictions (each column for a
+    different set of parameters, each row for a different point in time) and
+    time series `y`, evaluate the loss for each of the parameter combinations.
+
+    The resulting vector of losses has as one value for each parameter
+    combination (i.e. as many values as there are columns in
+    `grid_of_one_step_ahead_predictions`).
+
+    Provide `period_length` to ignore the first `period_length` observations
+    during loss evaluation.
+    """
     n = y.size
     step_ahead_loss = np.apply_along_axis(
         func1d = loss,
