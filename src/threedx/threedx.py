@@ -1,6 +1,4 @@
 import numpy as np
-from collections.abc import Callable
-from enum import Enum
 from typing import Any
 from warnings import warn
 
@@ -88,33 +86,20 @@ class Threedx():
         Parameters
         ----------
         y
-            A numpy array (vector) consisting of the training period of the time
-            series to predict.
-        loss_function
+            A floating one-dimensional numpy array (vector) consisting of the
+            training period of the time series to predict.
+            Must have at least `(period_length+1)` observations.
+        loss
             A function to calculate the loss during optimization. The function
             should take two positional arguments, `y_hat` and `y`, which will be
             numpy vectors of equal length. From those two vectors, the loss
-            should be calculated and returned as a float.
+            should be calculated and returned as a float. See `Loss` protocol.
+        
+        See Also
+        --------
+        Loss, mae, rmse, mae_unbiased, rmse_unbiased
         """
-        # TODO:
-        # _validate_y(y=y)
-
-        if y.size <= self.period_length:
-            raise ValueError(
-                f"The provided time series has {y.size} observations but "
-                f"Threedx requires at least {(1 + self.period_length)=} "
-                f"observations."
-            )
-
-        if y.size <= 2*self.period_length:
-            warn(
-                message = (
-                    "You are fitting a model onto not more than two periods of "
-                    "data. Optimal parameters will easily vary if one of the "
-                    "observations changes or when another observation is added."
-                ),
-                category=RuntimeWarning,
-            )
+        _validate_y(y=y, period_length=self.period_length)
 
         self.y = y
         self.n = y.size
@@ -193,15 +178,6 @@ class Threedx():
         rng = np.random.default_rng(seed = seed)
 
         if observation_driven:
-            if self.y.size < (2 * self.period_length):
-                warn(
-                    message=(
-                        "You are sampling based on less than "
-                        f"{(2 * self.period_length)=} of observations. "
-                        "Check results carefully."
-                    ),
-                    category=RuntimeWarning,
-                )
             y_hat_m = _predict_observation_driven(
                 horizon=horizon,
                 n_samples=n_samples,
@@ -213,16 +189,6 @@ class Threedx():
                 rng=rng
             )
         else:
-            if self.residuals.size < self.period_length:
-                warn(
-                    message=(
-                        "You are sampling based on less than "
-                       f"{self.period_length=} residuals. "
-                       "Check results carefully."
-                    ),
-                    category=RuntimeWarning,
-                )
-
             y_hat_m = _predict_innovations_driven(
                 horizon=horizon,
                 n_samples=n_samples,
@@ -352,22 +318,6 @@ def _predict_innovations_driven(
 
     return y_hat_m
 
-def _validate_innovations_matrix(m, n_samples, horizon):
-    """
-    Validate basic characteristics of the innovations matrix that might
-    have been drawn from a user-defined function.
-    """
-    if not isinstance(m, np.ndarray):
-        raise TypeError("The innovations matrix is not an `np.ndarray`.")
-    if m.shape != (n_samples, horizon):
-        raise ValueError(
-            f"""
-            The innovations matrix was expected to have shape
-            {(n_samples, horizon)=} but has shape {m.shape}.
-            """
-        )
-    return None
-
 def _calculate_grid_of_one_step_ahead_predictions(
     y: np.ndarray[tuple[int], np.dtype[np.float64]],
     period_length: int,
@@ -437,3 +387,47 @@ def _evaluate_loss_on_grid_of_predictions(
         y = y[period_length:n]
     )
     return step_ahead_loss
+
+def _validate_innovations_matrix(m, n_samples, horizon):
+    """
+    Validate basic characteristics of the innovations matrix that might
+    have been drawn from a user-defined function.
+    """
+    if not isinstance(m, np.ndarray):
+        raise TypeError("The innovations matrix is not an `np.ndarray`.")
+    if m.shape != (n_samples, horizon):
+        raise ValueError(
+            f"""
+            The innovations matrix was expected to have shape
+            {(n_samples, horizon)=} but has shape {m.shape}.
+            """
+        )
+    return None
+
+def _validate_y(
+        y: np.ndarray[tuple[int], np.dtype[np.float64]],
+        period_length: int
+    ) -> None:
+    if not isinstance(y, np.ndarray):
+        raise TypeError("The time series `y` must be an `np.ndarray`.")
+    if len(y.shape) != 1:
+        raise ValueError("`y` must be a one-dimensional array.")
+    if y.size <= period_length:
+        raise ValueError(
+            f"The provided time series has {y.size} observations but "
+            f"Threedx requires at least {(1 + period_length)=} "
+            f"observations."
+        )
+    if y.size <= 2*period_length:
+        warn(
+            message = (
+                "You are fitting a model onto not more than two periods of "
+                "data. Optimal parameters will easily vary if one of the "
+                "observations changes or when another observation is added."
+                "The quality of sample path predictions may be poor because "
+                "there are few observations (and consequently few residuals) "
+                "to sample from. "
+                "Consider using some custom forecast method instead."
+            ),
+            category=RuntimeWarning,
+        )
