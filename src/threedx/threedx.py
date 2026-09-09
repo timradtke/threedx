@@ -186,6 +186,9 @@ class Threedx():
 
         if not self.is_fitted:
             return None
+
+        _validate_positive_int(n=horizon, name="horizon")
+        _validate_positive_int(n=n_samples, name="n_samples")
         
         rng = np.random.default_rng(seed = seed)
 
@@ -266,28 +269,37 @@ def _predict_observation_driven(
     y_m = _initialize_y_m(y=y, n_samples=n_samples)
     y_hat_m = _initialize_y_hat_m(n_samples=n_samples, horizon=horizon)
 
-    for idx in range(horizon):
-        sample_indices = rng.choice(
-            a = y.size,
+    # Let `t` be the current time step, and `k` be the current sample path.
+    # The outer loop iteratively builds the sample paths by sampling at each
+    # iteration from historical observations *and* from the earlier steps in the
+    # prediction horizon.
+    for t in range(horizon):
+        # For the first horizon (t=0), samples are drawn solely from y_m.
+        tmp_y_m = np.concatenate((y_m, y_hat_m[:, :t]), axis = 1)
+
+        observation_indices = rng.choice(
+            # Passing an integer to `a`, thereby sampling from arange(a).
+            a = tmp_y_m.shape[1], # `tmp_y_m.shape[1]` increases with `t`.
             size = n_samples,
             replace = True,
             p = weights_threedx(
                 alpha = alpha,
                 alpha_seasonal = alpha_seasonal,
                 alpha_seasonal_decay = alpha_seasonal_decay,
-                n = y.size,
+                # `n` increases with `t` to assign a weight to all historical
+                # observations and the previously concatenated predictions.
+                n = tmp_y_m.shape[1],
                 period_length = period_length
             )
         )
 
-        # For the first horizon (idx=0), samples are drawn solely from y_m.
-        # For all additional horizons, samples are drawn from y_m and the
-        # previously drawn samples.
-        tmp_y_m = np.concatenate((y_m, y_hat_m[:, :idx]), axis = 1)
-        
-        for sample_idx in range(n_samples):
-            y_hat_m[sample_idx, idx] = \
-                tmp_y_m[sample_idx, sample_indices[sample_idx]]
+        # The inner loop is necessary because we take for each row `k` in
+        # `tmp_y_m` a different column `observation_indices[k]`.
+        # Note: `observation_indices.size != tmp_y_m.shape[1]`!
+        # TODO: Consider translating `observation_indices` into a boolean mask
+        #.      to avoid the loop.
+        for k in range(n_samples):
+            y_hat_m[k, t] = tmp_y_m[k, observation_indices[k]]
 
     return y_hat_m
 
