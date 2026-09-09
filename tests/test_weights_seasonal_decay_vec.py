@@ -31,4 +31,7 @@ def test_returns_matrix_where_rows_are_like_weights_seasonal_decay():
         assert_(alphas_list=alphas_list, n=14, period_length=pl)
         assert_(alphas_list=alphas_list, n=24, period_length=pl)
         assert_(alphas_list=alphas_list, n=365, period_length=pl)
-        assert_(alphas_list=alphas_list, n=18474, period_length=pl)
+
+        # # Turning large `n` on will make tests noticeably slower due to poor
+        # # scaling of the above `for` loop calling `weights_seasonal_decay()`.
+        # assert_(alphas_list=alphas_list, n=18474, period_length=pl)
