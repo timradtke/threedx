@@ -12,3 +12,7 @@ wheels/
 NOTES.md
 TODO.md
 *.ipynb
+
+# sphinx documentation
+docs/_build/
+docs/api/threedx

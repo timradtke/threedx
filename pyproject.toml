@@ -18,6 +18,13 @@ threedx = "threedx:main"
 graphics = [
     "matplotlib>=3.11.1",
 ]
+docs = [
+    "furo>=2025.12.19",
+    "ipykernel>=7.3.0",
+    "nbsphinx>=0.9.8",
+    "sphinx>=9.1.0",
+    "sphinx-mdinclude>=0.6.2",
+]
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
