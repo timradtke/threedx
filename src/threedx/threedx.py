@@ -12,39 +12,39 @@ from .weights import (
 )
 
 class Threedx():
+    """
+    Initialize a three-dimensional exponential smoothing model.
+
+    Parameters
+    ----------
+    period_length
+        Defines the length of the seasonal pattern to be fitted. For annual
+        seasonality in monthly observations, use 12. For weekly seasonality
+        in daily observations, use 7. And so on.
+    parameter_grid
+        A two-dimensional numpy array with three columns, consisting of
+        floating values in the range [0.0, 1.0].
+        Each column represents one of the three `alpha` parameters of a
+        Threedx model.
+        Each row is a parameter combination to be evaluated during model
+        fitting. The `.fit()` method performs grid search optimization
+        over the array provided here.
+        A large number of rows will make the optimization more exhaustive,
+        but also slows down the `.fit()` method.
+        Use, for example,
+        `threedx.initialize.initialize_parameters_at_random()`
+        to create the parameter grid, or define your own grid.
+    
+    See Also
+    --------
+    initialize_parameters_at_random, initialize_parameters_in_grid,
+    initialize_edge_case_parameters
+    """
     def __init__(
         self,
         period_length: int,
         parameter_grid: np.ndarray[tuple[int, int], np.dtype[np.float64]],
     ):
-        """
-        Initialize a three-dimensional exponential smoothing model.
-
-        Parameters
-        ----------
-        period_length
-            Defines the length of the seasonal pattern to be fitted. For annual
-            seasonality in monthly observations, use 12. For weekly seasonality
-            in daily observations, use 7. And so on.
-        parameter_grid
-            A two-dimensional numpy array with three columns, consisting of
-            floating values in the range [0.0, 1.0].
-            Each column represents one of the three `alpha` parameters of a
-            Threedx model.
-            Each row is a parameter combination to be evaluated during model
-            fitting. The `.fit()` method performs grid search optimization
-            over the array provided here.
-            A large number of rows will make the optimization more exhaustive,
-            but also slows down the `.fit()` method.
-            Use, for example,
-            `threedx.initialize.initialize_parameters_at_random()`
-            to create the parameter grid, or define a custom one.
-        
-        See Also
-        --------
-        initialize_parameters_at_random, initialize_parameters_in_grid,
-        initialize_edge_case_parameters
-        """
         _validate_positive_int(n=period_length, name="period_length")
         _validate_parameter_grid(grid=parameter_grid)
 
@@ -60,7 +60,15 @@ class Threedx():
 
     def weights(self) -> np.ndarray[tuple[int], np.dtype[np.float64]] | None:
         """
-        The three-dimensional exponential smoothing weights of the fitted model.
+        Get the three-dimensional exponential smoothing weights of the
+        fitted model.
+
+        Returns
+        -------
+        np.ndarray[tuple[int], np.dtype[np.float64]] | None
+            A one-dimensional numpy array with the weights assigned to the
+            observations in `y` by the fitted model, or `None` if the model is
+            not yet fitted. 
         """
         if not self.is_fitted:
             return None
@@ -81,7 +89,8 @@ class Threedx():
         loss: Loss
     ) -> None:
         """
-        Fit a `threedx` model given a time series `y`.
+        Fit a `threedx` model to a time series `y` by minimizing the provided
+        loss.
 
         Parameters
         ----------
