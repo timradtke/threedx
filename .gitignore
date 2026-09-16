@@ -11,7 +11,8 @@ wheels/
 
 NOTES.md
 TODO.md
-*.ipynb
+./*.ipynb
+examples/*.ipynb
 
 # sphinx documentation
 docs/_build/
