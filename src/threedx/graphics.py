@@ -5,7 +5,8 @@ from typing import Any
 
 def plot_forecast(
     forecast: np.ndarray[tuple[int, int], np.dtype[Any]],
-    y: np.ndarray[tuple[int, ], np.dtype[Any]]
+    y: np.ndarray[tuple[int, ], np.dtype[Any]],
+    y_future: None | np.ndarray[tuple[int, ], np.dtype[Any]] = None,
 ) -> Figure:
     """
     Plot a prediction sample path matrix as quantiles along with training data.
@@ -45,5 +46,7 @@ def plot_forecast(
         label="50%"
     )
     plt.plot(forecast_index, median, color="tomato", label="Median")
+    if y_future is not None:
+        plt.plot(forecast_index, y_future, color = "royalblue", label = "Data")
     plt.legend()
     plt.grid()
