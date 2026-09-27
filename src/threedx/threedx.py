@@ -440,3 +440,5 @@ def _validate_y(
             ),
             category=RuntimeWarning,
         )
+    if np.any(np.isnan(y)):
+        raise ValueError("`y` must not contain any NaNs.")
