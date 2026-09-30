@@ -17,26 +17,39 @@ threedx
 
 ----------
 
-Threedx is a flexible interface to draw robust sample path forecasts for
-univariate time series.
+Threedx provides an interface for interpretable probabilistic forecasts that
+puts you in control.
 
 ..  sidebar::
 
     :doc:`Nothing but numpy <howto/install>` as dependencies.
 
-It gives you access to its internals both during training and at prediction time
-to get the most out of your data.
+If you believe in choosing the right model for the job, you'll love that Threedx
+let's you pick the loss function at training time. And at prediction time,
+Threedx either forecasts by sampling from past observations, or via an
+innovations generating process you define.
 
-.. mdinclude:: ../README.md
+Threedx could be the right fit for you, if...
 
-.. toctree::
-   :name: How To
-   :caption: How To
+- your users require interpretability,
+- your use case benefits from a custom loss function,
+- your data is dominated by seasonality while trends are weak,
+- your data is intermittent, non-negative, or otherwise non-normal.
+
+Contents
+--------
+
+The best way to learn about Threedx is by diving in:
+
+..  toctree::
    :maxdepth: 1
-   :hidden:
+   :titlesonly:
 
    howto/install
    howto/getstarted
+
+Afterwards, check these tutorials to see different ways in which Threedx can be
+applied.
 
 ..  rst-class:: toc-with-header
 
@@ -45,7 +58,10 @@ to get the most out of your data.
    :titlesonly:
 
    tutorials/README
-   Evaluate on FEV Bench <tutorials/evaluate_on_fev_bench>
+   Forecast fev-bench Tasks Using Threedx <tutorials/forecast_fev_bench_tasks_using_threedx>
+
+For more in-depth background on Threedx and the concepts behind Threedx, refer
+to the following sections.
 
 ..  rst-class:: toc-with-header
 
@@ -55,11 +71,11 @@ to get the most out of your data.
 
    concepts/README
 
-.. toctree::
-   :name: Reference
-   :caption: Reference
-   :maxdepth: 1
-   :hidden:
+Finally, the API reference.
 
-   api/threedx/threedx
+..  toctree::
+   :maxdepth: 1
+   :titlesonly:
+
+   Reference <api/threedx/threedx>
 
