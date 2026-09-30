@@ -42,9 +42,11 @@ def _forecast_task_as_dataset_dict_per_window(
     
     Returns
     -------
-    A list of `datasets.DatasetDict`, each containing the quantile forecasts for
-    all of the `Task` time series for one of the windows defined by `Task`.
-    Can be passed to `Task.evaluation_summary()`.
+    DatasetDict
+        A list of `datasets.DatasetDict`, each containing the quantile forecasts
+        for all of the `Task` time series for one of the windows defined by
+        `Task`.
+        Can be passed to `Task.evaluation_summary()`.
 
     See Also
     --------
@@ -121,8 +123,10 @@ def _convert_list_of_quantile_arrays_to_datasetdict(
 
     Returns
     -------
-    A DatasetDict of quantile forecasts, as expected by fev during evaluation
-    of forecasts for a forecast task. See `fev.Task.evaluation_summary()`.
+    DatasetDict
+        A DatasetDict of quantile forecasts, as expected by fev during
+        evaluation of forecasts for a forecast task. See
+        `fev.Task.evaluation_summary()`.
     """
     quantile_names = ["predictions"] + [str(q) for q in quantile_levels]
 

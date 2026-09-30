@@ -19,8 +19,9 @@ class Loss(Protocol):
         
         Returns
         -------
-        The loss of predictions evaluated against actuals, a floating numpy
-        scalar.
+        array_like
+            The loss of predictions evaluated against actuals, a floating numpy
+            scalar.
         """
 
 def mae(

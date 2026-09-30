@@ -57,8 +57,9 @@ def weights_exponential(
     
     Returns
     -------
-    A monotonically increasing numpy array (vector) of `n` values between 0 and
-    1 that sum up to 1.
+    array_like
+        A monotonically increasing numpy array (vector) of `n` values between 0
+        and 1 that sum up to 1.
 
     See Also
     --------
@@ -119,7 +120,8 @@ def weights_seasonal(
     
     Returns
     -------
-    A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
+    array_like
+        A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
 
     See Also
     --------
@@ -202,7 +204,8 @@ def weights_seasonal_decay(
     
     Returns
     -------
-    A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
+    array_like
+        A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
 
     See Also
     --------
@@ -283,7 +286,8 @@ def weights_threedx(
     
     Returns
     -------
-    A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
+    array_like
+        A numpy array (vector) of `n` values between 0 and 1 that sum up to 1.
 
     See Also
     --------
@@ -422,8 +426,9 @@ def _weights_exponential_vec(
     
     Returns
     -------
-    A numpy array of shape `(alphas.size, n)` with float values between 0 and 1
-    that sum up to 1.
+    array_like
+        A numpy array of shape `(alphas.size, n)` with float values between 0
+        and 1 that sum up to 1.
     """
     # m_an_: A matrix with a rows and n columns, where a=alphas.size and n=n
     
@@ -462,8 +467,9 @@ def _weights_seasonal_vec(
     
     Returns
     -------
-    A numpy array of shape `(alphas.size, n)` with float values between 0 and 1
-    that sum up to 1.
+    array_like
+        A numpy array of shape `(alphas.size, n)` with float values between 0
+        and 1 that sum up to 1.
     """
     seasons = np.ceil(n / period_length).astype(int)
 
@@ -537,8 +543,9 @@ def _weights_seasonal_decay_vec(
     
     Returns
     -------
-    A numpy array of shape `(alphas.size, n)` with float values between 0 and 1
-    that sum up to 1.
+    array_like
+        A numpy array of shape `(alphas.size, n)` with float values between 0
+        and 1 that sum up to 1.
     """
     # Constructs weights by first deriving the weights that were necessary if
     # period_length was 1. Then repeats each of these weights period_length
@@ -598,8 +605,9 @@ def _weights_threedx_vec(
     
     Returns
     -------
-    A numpy array of shape `(alphas.size, n)` with float values between 0 and 1
-    that sum up to 1.
+    array_like
+        A numpy array of shape `(alphas.size, n)` with float values between 0
+        and 1 that sum up to 1.
     """
     weights_exponential = _weights_exponential_vec(alphas=alphas, n=n) 
 

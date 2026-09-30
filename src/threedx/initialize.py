@@ -8,8 +8,9 @@ def initialize_edge_case_parameters(
     
     Returns
     -------
-    A numpy two-dimensional array with three columns and `size` rows, filled
-    with floating values in the range [0,1].
+    array_like
+        A numpy two-dimensional array with three columns and `size` rows, filled
+        with floating values in the range [0,1].
 
     See Also
     --------
@@ -59,8 +60,9 @@ def initialize_parameters_at_random(
     
     Returns
     -------
-    A numpy two-dimensional array with three columns and `size` rows, filled
-    with floating values in the range [0,1].
+    array_like
+        A numpy two-dimensional array with three columns and `size` rows, filled
+        with floating values in the range [0,1].
 
     See Also
     --------
@@ -125,8 +127,9 @@ def initialize_parameters_in_grid(
     
     Returns
     -------
-    A numpy two-dimensional array with three columns and `base_size**3` rows,
-    filled with floating values in the range [0,1].
+    array_like
+        A numpy two-dimensional array with three columns and `base_size**3`
+        rows, filled with floating values in the range [0,1].
 
     See Also
     --------

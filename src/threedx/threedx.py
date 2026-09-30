@@ -65,7 +65,7 @@ class Threedx():
 
         Returns
         -------
-        np.ndarray[tuple[int], np.dtype[np.float64]] | None
+        array_like or None
             A one-dimensional numpy array with the weights assigned to the
             observations in `y` by the fitted model, or `None` if the model is
             not yet fitted. 
@@ -175,6 +175,7 @@ class Threedx():
         
         Returns
         -------
+        array_like or None
             A numpy array of sample paths, with shape (`n_samples`, `horizon`).
         """
 

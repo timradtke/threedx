@@ -24,7 +24,8 @@ class Draw(Protocol):
         
         Returns
         -------
-        Two-dimensional numpy array (matrix) of innovations.
+        array_like
+            Two-dimensional numpy array (matrix) of innovations.
         """
 
 def draw_normal_with_zero_mean(
