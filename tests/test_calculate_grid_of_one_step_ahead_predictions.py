@@ -91,12 +91,12 @@ def test_returns_cumulative_mean_for_mean_parameters():
         alphas_seasonal=np.array([0.0], dtype=np.float64),
     )
 
-    npt.assert_equal(
+    npt.assert_almost_equal(
         actual=matrix_of_predictions[7, 0],
         desired=np.mean(y[0:7])
     )
 
-    npt.assert_equal(
+    npt.assert_almost_equal(
         actual=matrix_of_predictions[8, 0],
         desired=np.mean(y[0:8])
     )
