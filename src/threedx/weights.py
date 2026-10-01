@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Any
 
 def _validate_positive_int(n, name="n"):
     if not isinstance(n, int):
@@ -15,7 +16,7 @@ def _validate_alpha(alpha):
         )
 
 def _validate_alphas(alphas):
-    if not isinstance(alphas, np.ndarray[tuple[int], np.dtype[np.float64]]):
+    if not isinstance(alphas, np.ndarray):
         raise TypeError("`n` must be an float64 ndarray of shape (int, ).")
     if (np.sum(alphas < 0.) > 0) | (np.sum(alphas > 1.) > 0):
         raise ValueError(
@@ -39,7 +40,7 @@ def _validate_alphas_are_aligned(
 def weights_exponential(
     alpha: float,
     n: int
-) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+) -> np.ndarray[tuple[int], np.dtype[Any]]:
     """
     Derive exponential weights
 

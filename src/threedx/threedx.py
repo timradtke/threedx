@@ -87,7 +87,7 @@ class Threedx():
         self,
         y: np.ndarray[tuple[int], np.dtype[Any]],
         loss: Loss
-    ) -> None:
+    ):
         """
         Fit a `threedx` model to a time series `y` by minimizing the provided
         loss.
@@ -149,7 +149,7 @@ class Threedx():
         n_samples: int,
         observation_driven: bool,
         draw: Draw,
-        seed: int = None
+        seed: int | None = None
     ) -> np.ndarray[tuple[int, int], np.dtype[Any]] | None:
         """
         Predict sample paths from the fitted model.
@@ -374,7 +374,7 @@ def _evaluate_loss_on_grid_of_predictions(
     grid_of_one_step_ahead_predictions: \
         np.ndarray[tuple[int, int], np.dtype[np.float64]],
     period_length: int,
-) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+) -> np.ndarray[tuple[int], np.dtype[Any]]:
     """
     Evaluate loss function on predictions from parameter combinations.
 

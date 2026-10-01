@@ -6,13 +6,14 @@ Threedx to reduce the complexity of some tutorials in the Threedx documentation.
 """
 
 import numpy as np
-from fev import Task
-from datasets import Dataset, DatasetDict
+from fev import Task # type: ignore
+from datasets import Dataset, DatasetDict # type: ignore
+from typing import Callable
 from .loss import Loss
 from .threedx import Threedx
 
 def _forecast_task_as_dataset_dict_per_window(
-    using: callable,
+    using: Callable,
     task: Task,
     parameter_grid: None | np.ndarray = None,
     loss: None | Loss = None,
@@ -157,7 +158,7 @@ def _convert_list_of_quantile_arrays_to_datasetdict(
     return DatasetDict(prediction_dict)
 
 def _predict_fev_quantiles_using_latest_value(
-    y: list,
+    y: np.ndarray[tuple[int,], np.dtype[np.float64]],
     quantile_levels: list[float],
     horizon: int,
     period_length: int,
@@ -178,7 +179,7 @@ def _predict_fev_quantiles_using_latest_value(
     )
 
 def _predict_fev_quantiles_using_latest_period(
-    y: list,
+    y: np.ndarray[tuple[int,], np.dtype[np.float64]],
     quantile_levels: list[float],
     horizon: int,
     period_length: int,
@@ -213,7 +214,7 @@ def _predict_fev_quantiles_using_latest_period(
     )
 
 def _predict_fev_quantiles_using_threedx(
-    y: list,
+    y: np.ndarray[tuple[int,], np.dtype[np.float64]],
     quantile_levels: list[float],
     horizon: int,
     period_length: int,

@@ -40,7 +40,7 @@ def initialize_edge_case_parameters(
 
 def initialize_parameters_at_random(
     size: int = 1000,
-    seed: int = None,
+    seed: int | None = None,
     include_edge_cases: bool = True,
 ) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
     """
