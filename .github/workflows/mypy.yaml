@@ -23,7 +23,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        uv sync --python 3.12 --extra dev --extra graphics --extra docs
+        uv sync --python 3.12 --dev --extra graphics --extra docs
 
     - name: mypy
       run: uv run mypy src
