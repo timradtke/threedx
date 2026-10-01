@@ -1,12 +1,12 @@
 import numpy as np
-from typing import Any, Protocol
+from typing import Any, Protocol, Literal
 
 class Loss(Protocol):
     def __call__(
         self,
         y_hat: np.ndarray[tuple[int, ], np.dtype[Any]],
         y: np.ndarray[tuple[int, ], np.dtype[Any]]
-    ) -> np.ndarray[tuple[1, ], np.dtype[np.floating]]:
+    ) -> np.ndarray[tuple[Literal[1], ], np.dtype[np.floating]]:
         """
         Calculate the loss for predictions `y_hat` and observations `y`.
 
@@ -27,21 +27,21 @@ class Loss(Protocol):
 def mae(
     y_hat: np.ndarray[tuple[int, ], np.dtype[Any]],
     y: np.ndarray[tuple[int, ], np.dtype[Any]]
-) -> np.ndarray[tuple[1, ], np.dtype[np.floating]]:
+) -> np.ndarray[tuple[Literal[1], ], np.dtype[np.floating]]:
     """Calculate the mean absolute error."""
     return np.mean(np.abs(y - y_hat))
 
 def rmse(
     y_hat: np.ndarray[tuple[int, ], np.dtype[Any]],
     y: np.ndarray[tuple[int, ], np.dtype[Any]]
-) -> np.ndarray[tuple[1, ], np.dtype[np.floating]]:
+) -> np.ndarray[tuple[Literal[1], ], np.dtype[np.floating]]:
     """Calculate the root mean squared error."""
     return np.sqrt(np.mean((y - y_hat)**2))
 
 def mae_unbiased(
     y_hat: np.ndarray[tuple[int, ], np.dtype[Any]],
     y: np.ndarray[tuple[int, ], np.dtype[Any]]
-) -> np.ndarray[tuple[1, ], np.dtype[np.floating]]:
+) -> np.ndarray[tuple[Literal[1], ], np.dtype[np.floating]]:
     """
     Calculate a mean absolute error after removing median bias.
     
@@ -59,7 +59,7 @@ def mae_unbiased(
 def rmse_unbiased(
     y_hat: np.ndarray[tuple[int, ], np.dtype[Any]],
     y: np.ndarray[tuple[int, ], np.dtype[Any]]
-) -> np.ndarray[tuple[1, ], np.dtype[np.floating]]:
+) -> np.ndarray[tuple[Literal[1], ], np.dtype[np.floating]]:
     """
     Calculate a root mean squared error after removing mean bias.
     

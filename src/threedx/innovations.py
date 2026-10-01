@@ -4,6 +4,7 @@ from typing import Any, Protocol
 
 class Draw(Protocol):
     def __call__(
+        self,
         rng: Generator,
         size: tuple[int, int],
         residuals: np.ndarray[tuple[int, ], np.dtype[Any]]

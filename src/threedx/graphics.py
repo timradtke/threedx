@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from typing import Any
 
-def plot_forecast(
+def plot_forecast( # type: ignore
     forecast: np.ndarray[tuple[int, int], np.dtype[Any]],
     y: np.ndarray[tuple[int, ], np.dtype[Any]],
     y_future: None | np.ndarray[tuple[int, ], np.dtype[Any]] = None,
