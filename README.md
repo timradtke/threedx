@@ -1,6 +1,6 @@
-[![documentation](https://img.shields.io/badge/docs-latest-success)](https://timradtke.github.io/threedx)
-
 # threedx
+
+[![documentation](https://img.shields.io/badge/docs-latest-success)](https://timradtke.github.io/threedx)
 
 Threedx provides an interface for interpretable probabilistic forecasts that puts you in control.
 
