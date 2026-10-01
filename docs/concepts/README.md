@@ -1,3 +1,0 @@
-## Concepts
-
-Explanation of concepts.
