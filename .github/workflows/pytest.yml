@@ -25,5 +25,5 @@ jobs:
       run: |
         uv sync --python 3.12 --dev
 
-    - name: mypy
+    - name: pytest
       run: uv run pytest
