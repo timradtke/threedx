@@ -58,6 +58,7 @@ applied.
    :titlesonly:
 
    tutorials/README
+   Interpet Threedx Forecasts <tutorials/interpret_threedx_forecasts>
    Forecast fev-bench Tasks Using Threedx <tutorials/forecast_fev_bench_tasks_using_threedx>
 
 For more in-depth background on Threedx and the concepts behind Threedx, refer
