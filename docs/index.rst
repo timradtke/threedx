@@ -39,9 +39,11 @@ Threedx could be the right fit for you, if...
 Contents
 --------
 
-The best way to learn about Threedx is by diving in:
+The best way to learn about Threedx is by diving in.
 
 ..  toctree::
+   :name: How To
+   :caption: How To
    :maxdepth: 1
    :titlesonly:
 
@@ -51,31 +53,21 @@ The best way to learn about Threedx is by diving in:
 Afterwards, check these tutorials to see different ways in which Threedx can be
 applied.
 
-..  rst-class:: toc-with-header
-
 ..  toctree::
+   :name: Tutorials
+   :caption: Tutorials
    :maxdepth: 1
    :titlesonly:
 
-   tutorials/README
    Interpet Threedx Forecasts <tutorials/interpret_threedx_forecasts>
    Forecast fev-bench Tasks Using Threedx <tutorials/forecast_fev_bench_tasks_using_threedx>
 
-For more in-depth background on Threedx and the concepts behind Threedx, refer
-to the following sections.
-
-..  rst-class:: toc-with-header
+Finally, the API reference for all remaining details.
 
 ..  toctree::
-   :maxdepth: 1
-   :titlesonly:
-
-   concepts/README
-
-Finally, the API reference.
-
-..  toctree::
-   :maxdepth: 1
+   :name: API Reference
+   :caption: API Reference
+   :maxdepth: 2
    :titlesonly:
 
    Reference <api/threedx/threedx>

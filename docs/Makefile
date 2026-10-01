@@ -14,6 +14,11 @@ help:
 
 .PHONY: help Makefile
 
+# Remove the existing _build to avoid any caching and force a complete rebuild
+# of sidebars and CSS options.
+clean:
+	@rm -Rf _build
+
 apidoc:
 	@rm -Rf api/threedx
 
@@ -29,5 +34,5 @@ apidoc:
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: apidoc Makefile
+%: clean apidoc Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
