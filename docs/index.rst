@@ -60,6 +60,7 @@ applied.
    :titlesonly:
 
    Interpet Threedx Forecasts <tutorials/interpret_threedx_forecasts>
+   Observation-driven Sample Path Forecasts <tutorials/observation_driven_sample_paths>
    Forecast fev-bench Tasks Using Threedx <tutorials/forecast_fev_bench_tasks_using_threedx>
 
 Finally, the API reference for all remaining details.
