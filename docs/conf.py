@@ -55,6 +55,12 @@ html_static_path = ['_static']
 html_css_files = ["threedx.css"]
 html_copy_source = False
 html_show_sourcelink = False
+html_theme_options = {
+    "light_css_variables": {
+        "color-brand-primary": "#B30100",
+        "color-brand-content": "#B30100",
+    },
+}
 
 # source_suffix = [".rst", ".md"]
 
