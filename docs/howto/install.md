@@ -3,7 +3,7 @@
 Install Threedx from Github. Use either `pip`...
 
 ```bash
-uv pip install "git+https://github.com/timradtke/threedx"
+pip install "git+https://github.com/timradtke/threedx"
 ```
 
 ... or use [uv](https://docs.astral.sh/uv):
