@@ -1,4 +1,4 @@
-# threedx
+![](./docs/_static/README/threedx_logo.svg)
 
 [![license](https://img.shields.io/badge/License-Apache--2.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![documentation](https://img.shields.io/badge/docs-latest-success)](https://timradtke.github.io/threedx)
