@@ -17,3 +17,5 @@ examples/*.ipynb
 # sphinx documentation
 docs/_build/
 docs/api/threedx
+
+*.DS_Store
