@@ -56,9 +56,12 @@ html_css_files = ["threedx.css"]
 html_copy_source = False
 html_show_sourcelink = False
 html_theme_options = {
+    "light_logo": "README/threedx_logo.svg",
+    "dark_logo": "README/threedx_logo.svg",
+    "sidebar_hide_name": True,
     "light_css_variables": {
-        "color-brand-primary": "#B30100",
-        "color-brand-content": "#B30100",
+        "color-brand-primary": "#0000ff",
+        "color-brand-content": "#0000ff",
     },
 }
 

@@ -65,6 +65,16 @@ applied.
    Use a Custom Loss Function <tutorials/use_a_custom_loss>
    Forecast fev-bench Tasks Using Threedx <tutorials/forecast_fev_bench_tasks_using_threedx>
 
+Dive into more details in the concepts section.
+
+..  toctree::
+   :name: Concepts
+   :caption: Concepts
+   :maxdepth: 1
+   :titlesonly:
+
+   Related Work <concepts/related_work>
+
 Finally, the API reference for all remaining details.
 
 ..  toctree::
