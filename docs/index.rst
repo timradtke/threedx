@@ -59,6 +59,7 @@ applied.
    :maxdepth: 1
    :titlesonly:
 
+   Inspect Visual Examples for Several Datasets <tutorials/visual_examples>
    From Parameters to Weights <tutorials/from_parameters_to_weights>
    Interpet Threedx Forecasts <tutorials/interpret_threedx_forecasts>
    Observation-driven Sample Path Forecasts <tutorials/observation_driven_sample_paths>
